@@ -1,0 +1,9 @@
+all_types:
+  bool: bool
+  int: int
+  float: float
+  string: string
+  text: text
+  date: date
+  obj: json
+  relation: relation
