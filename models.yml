@@ -1,15 +1,15 @@
 models:
   user:
-    id:         int
-    firstname:  string
-    lastname:   string
-    pasword:    string
+    id:         'int'
+    firstname:  'string'
+    lastname:   'string'
+    pasword:    'string'
 
   player:
-    id:         int
-    age:        int
-    right_hand: bool
-    user:       @user
+    id:         'int'
+    age:        'int'
+    right_hand: 'bool'
+    user:       '@user'
 
   championat:
     id:           int
@@ -18,71 +18,69 @@ models:
     start_at:     date
     end_at:       date
     description:  text
-    club:         @club
-    courts:       @courts
-    players:      []@player /????
+    club:         '@club'
+    courts:       '@courts'
 
   championat_has_player:
     seed:       int
     place:      int
     points:     int
-    championat: @championat
-    player:     @player
+    championat: '@championat'
+    player:     '@player'
 
   club:
     id:           int
     name:         string
     description:  text
-    championats:  []@championat
-    players:      []@player
-    ranking:      []@ranking
+    championats:  '[]@championat'
+    players:      '[]@player'
+    ranking:      '[]@ranking'
 
   courts:
     id:       int
     name:     string
     address:  string
     surface:  string
-    location: @location
+    location: '@location'
 
   location:
     lat: float
     lng: float
 
-
   draw:
     id:           int
     name_or_type: string
     capacity:     int
-    championat:   @championat
-    players:      []@player MAPPING ??????????????????
-    matches:      []@match   MAPPING ??????????????????
+    championat:   '@championat'
+    players:      '[]@player MAPPING ??????????????????'
+    matches:      '[]@match   MAPPING ??????????????????'
 
   group:
     id:         int
     name:       string
     capacity:   int
-    championat: @championat
-    players:    []@player MAPPING ??????????????????
-    matches:    []@match  MAPPING ??????????????????
+    championat: '@championat'
+    players:    '[]@player MAPPING ??????????????????'
+    matches:    '[]@match  MAPPING ??????????????????'
 
   match:
     id:               int
     date:             date
     drawRound:        int
     drawRoundNumber:  int
-    player1:          @player
-    player2:          @player
-    group:            @group
-    draw:             @draw
+    player1:          '@player'
+    player2:          '@player'
+    group:            '@group'
+    draw:             '@draw'
 
   set:
     id:               int
     number:           int
     player_1_points:  int
     player_2_points:  int
-    match:            @match
+    match:            '@match'
 
   ranking:
     id:   int
     name: string
-    club: @club
+    club: '@club'
