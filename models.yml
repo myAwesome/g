@@ -41,27 +41,23 @@ models:
     name:     string
     address:  string
     surface:  string
-    location: '@location'
-
-  location:
-    lat: float
-    lng: float
+    location: '#location'
 
   draw:
     id:           int
     name_or_type: string
     capacity:     int
     championat:   '@championat'
-    players:      '[]@player MAPPING ??????????????????'
-    matches:      '[]@match   MAPPING ??????????????????'
+    players:      '[]@player MAPPING'
+    matches:      '[]@match   MAPPING'
 
   group:
     id:         int
     name:       string
     capacity:   int
     championat: '@championat'
-    players:    '[]@player MAPPING ??????????????????'
-    matches:    '[]@match  MAPPING ??????????????????'
+    players:    '[]@player MAPPING'
+    matches:    '[]@match  MAPPING '
 
   match:
     id:               int
@@ -84,3 +80,8 @@ models:
     id:   int
     name: string
     club: '@club'
+
+value_objects:
+    location:
+      lat: float
+      lng: float

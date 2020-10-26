@@ -7,3 +7,12 @@ all_types:
   date: date
   obj: json
   relation: relation
+
+models:
+  model_name:
+    field_name: field_type
+    relation_name: '@model_name'
+    vo_field_name: '#value_object_name'
+value_objects:
+  value_object_name:
+    field_name: field_type

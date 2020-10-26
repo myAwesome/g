@@ -1,0 +1,17 @@
+models:
+  User:
+    id:         int
+    firstname:  string
+    lastname:   string
+    pasword:    string
+  Player:
+    id:         int
+    age:        int
+    right_hand: bool
+    user:       User
+    location:   Location
+
+value_objects:
+    location:
+      lat: float
+      lng: float
