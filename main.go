@@ -14,6 +14,10 @@ import (
 type Config struct {
 	Models map[string]map[string]string
 	Vo     map[string]map[string]string
+
+	ModelsGo []Model
+	VoGo     []Model
+	Imports  []string
 }
 
 type Model struct {
@@ -43,27 +47,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	fmt.Println(config.Vo)
-	var models []Model
-	for modelName, modelFields := range config.Models {
-		m := Model{Name: modelName}
-		for key, tp := range modelFields {
-			f := Fields{Name: key, Type: tp}
-			m.Fields = append(m.Fields, f)
-		}
-		models = append(models, m)
-	}
 
-	var vos []Model
-	for voName, voFields := range config.Vo {
-		vo := Model{Name: voName}
-
-		for key, tp := range voFields {
-			f := Fields{Name: key, Type: tp}
-			vo.Fields = append(vo.Fields, f)
-		}
-		vos = append(vos, vo)
-	}
+	ymlToGo(&config)
 
 	funcMap := template.FuncMap{
 		"snakeToCamel": toCamelCase,
@@ -72,7 +57,7 @@ func main() {
 	tpmlt := `
 {{range .}}
 type {{.Name|snakeToCamel}} struct {
-{{range .Fields}} {{ .Name|snakeToCamel }} {{ .Type }}
+{{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }}
 {{end}}
 }
 {{end}}
@@ -83,13 +68,56 @@ type {{.Name|snakeToCamel}} struct {
 	var result bytes.Buffer
 	fmt.Println("package main")
 
-	tmpl.Execute(&result, models)
+	tmpl.Execute(&result, config.ModelsGo)
 	fmt.Println(result.String())
-	result.Truncate(0)
+	result.Reset()
 
-	tmpl.Execute(&result, vos)
+	tmpl.Execute(&result, config.VoGo)
 	fmt.Println(result.String())
 
-	//TODO:
+}
 
+func ymlToGo(config *Config) {
+	for modelName, modelFields := range config.Models {
+		m := Model{Name: modelName}
+		for key, tp := range modelFields {
+			f := Fields{Name: key, Type: tp}
+			switch tp {
+			case "date":
+				f.GoType = "time.Time"
+				f.DbType = "DATETIME"
+			case "text":
+				f.GoType = "string"
+				f.DbType = "LONGTEXT"
+			case "float":
+				f.GoType = "float64"
+				f.DbType = "DECIMAL"
+			default:
+				f.GoType = tp
+			}
+			m.Fields = append(m.Fields, f)
+		}
+		config.ModelsGo = append(config.ModelsGo, m)
+	}
+	for voName, voFields := range config.Vo {
+		vo := Model{Name: voName}
+		for key, tp := range voFields {
+			f := Fields{Name: key, Type: tp}
+			switch tp {
+			case "date":
+				f.GoType = "time.Time"
+				f.DbType = "DATETIME"
+			case "text":
+				f.GoType = "string"
+				f.DbType = "DECIMAL"
+			case "float":
+				f.GoType = "float64"
+				f.DbType = "DECIMAL"
+			default:
+				f.GoType = tp
+			}
+			vo.Fields = append(vo.Fields, f)
+		}
+		config.VoGo = append(config.VoGo, vo)
+	}
 }

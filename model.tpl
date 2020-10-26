@@ -1,6 +1,5 @@
-{{range .}}
-type {{.Name}} struct {
-{{range .Fields}} {{ .Name }} {{ .Type }}
-{{end}}
-{{end}}
-}
+`{{range .}}
+type {{.Name|snakeToCamel}} struct {
+{{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }}
+{{end}}}
+{{end}}`
