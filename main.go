@@ -1,7 +1,7 @@
 package main
 
+import "bytes"
 import (
-	"bytes"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"html/template"
@@ -17,7 +17,7 @@ type Config struct {
 
 	ModelsGo []Model
 	VoGo     []Model
-	Imports  []string
+	Imports  map[string]bool
 }
 
 type Model struct {
@@ -43,6 +43,7 @@ func toCamelCase(str string) string {
 func main() {
 	data, _ := ioutil.ReadFile("models.yml")
 	config := Config{}
+	config.Imports = make(map[string]bool)
 	err := yaml.Unmarshal([]byte(data), &config)
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -66,7 +67,12 @@ type {{.Name|snakeToCamel}} struct {
 	tmpl, _ := template.New("models").Funcs(funcMap).Parse(tpmlt)
 
 	var result bytes.Buffer
-	fmt.Println("package main")
+	fmt.Println("package main \n")
+	if len(config.Imports) > 0 {
+		for i, _ := range config.Imports {
+			fmt.Println(`import "` + i + `"`)
+		}
+	}
 
 	tmpl.Execute(&result, config.ModelsGo)
 	fmt.Println(result.String())
@@ -86,6 +92,9 @@ func ymlToGo(config *Config) {
 			case "date":
 				f.GoType = "time.Time"
 				f.DbType = "DATETIME"
+				if false == config.Imports["time"] {
+					config.Imports["time"] = true
+				}
 			case "text":
 				f.GoType = "string"
 				f.DbType = "LONGTEXT"
@@ -107,6 +116,9 @@ func ymlToGo(config *Config) {
 			case "date":
 				f.GoType = "time.Time"
 				f.DbType = "DATETIME"
+				if false == config.Imports["time"] {
+					config.Imports["time"] = true
+				}
 			case "text":
 				f.GoType = "string"
 				f.DbType = "DECIMAL"
