@@ -1,14 +1,14 @@
 package main
 
-import "bytes"
 import (
 	"fmt"
 	"gopkg.in/yaml.v2"
-	"html/template"
 	"io/ioutil"
 	"log"
+	"os"
 	"regexp"
 	"strings"
+	"text/template"
 )
 
 type Config struct {
@@ -55,18 +55,6 @@ func main() {
 		"snakeToCamel": toCamelCase,
 	}
 
-	tpmlt := `
-{{range .}}
-type {{.Name|snakeToCamel}} struct {
-{{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }}
-{{end}}
-}
-{{end}}
-`
-
-	tmpl, _ := template.New("models").Funcs(funcMap).Parse(tpmlt)
-
-	var result bytes.Buffer
 	fmt.Println("package main \n")
 	if len(config.Imports) > 0 {
 		for i, _ := range config.Imports {
@@ -74,13 +62,19 @@ type {{.Name|snakeToCamel}} struct {
 		}
 	}
 
-	tmpl.Execute(&result, config.ModelsGo)
-	fmt.Println(result.String())
-	result.Reset()
+	tmplt, err := template.New("model.txt").Funcs(funcMap).ParseFiles("model.txt")
 
-	tmpl.Execute(&result, config.VoGo)
-	fmt.Println(result.String())
-
+	if err != nil {
+		panic(err)
+	}
+	err = tmplt.ExecuteTemplate(os.Stdout, "model.txt", config.ModelsGo)
+	if err != nil {
+		panic(err)
+	}
+	err = tmplt.ExecuteTemplate(os.Stdout, "model.txt", config.VoGo)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func ymlToGo(config *Config) {
