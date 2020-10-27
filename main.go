@@ -62,7 +62,7 @@ func main() {
 		}
 	}
 
-	tmplt, err := template.New("model.txt").Funcs(funcMap).ParseFiles("model.txt")
+	tmplt, err := template.New("model.txt").Funcs(funcMap).ParseFiles("tpl/model.txt")
 
 	if err != nil {
 		panic(err)
