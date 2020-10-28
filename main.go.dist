@@ -57,10 +57,6 @@ func main() {
 		"snakeToCamel": toCamelCase,
 	}
 
-
-	// MODELS
-
-
 	fmt.Println("package main \n")
 	if len(config.Imports) > 0 {
 		for i, _ := range config.Imports {

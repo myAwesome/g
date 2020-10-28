@@ -7,7 +7,6 @@ import (
 	"github.com/jinzhu/gorm"
 	"log"
 	"os"
-	{{range .Imports}} {{ . }} {{end}}}
 )
 
 func main() {
@@ -35,8 +34,8 @@ func main() {
 	r.GET("/model", Read)
 	r.PUT("/model/:id", Update)
 	r.DELETE("/model/:id", Delete)
-
-
+	
+	
 	r.Run(":8881" + serverport)
 }
 
@@ -45,7 +44,15 @@ func Create (c *gin.Context)  {
 }
 
 func Read(c *gin.Context)  {
-	c.JSON(200, "read")
+	db := DBInstance(c)
+    type B struct {
+        Brand string `json:"brand"`
+        Nbr   int    `json:"nbr"`
+    }
+    var brands []B
+    query := "SELECT brand, count(brand) as nbr FROM beer.review1 group by brand order by count(brand) desc;"
+    db.Raw(query).Scan(&brands)
+    c.JSON(200, brands)
 }
 
 func Update(c *gin.Context)  {
