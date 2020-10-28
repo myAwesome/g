@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -44,7 +43,6 @@ func main() {
 	data, _ := ioutil.ReadFile("short.yml")
 	config := Config{}
 	config.Imports = make(map[string]bool)
-	config.Imports["github.com/gin-gonic/gin"] = true
 
 	err := yaml.Unmarshal([]byte(data), &config)
 	if err != nil {
@@ -57,58 +55,15 @@ func main() {
 		"snakeToCamel": toCamelCase,
 	}
 
-	fmt.Println("package main \n")
-	if len(config.Imports) > 0 {
-		for i, _ := range config.Imports {
-			fmt.Println(`import "` + i + `"`)
-		}
-	}
-
-	tmplt, err := template.New("model.txt").Funcs(funcMap).ParseFiles("tpl/model.txt")
+	tmplt, err := template.New("server.txt").Funcs(funcMap).ParseFiles("tpl/server.txt")
 
 	if err != nil {
 		panic(err)
 	}
-	err = tmplt.ExecuteTemplate(os.Stdout, "model.txt", config.ModelsGo)
+	err = tmplt.ExecuteTemplate(os.Stdout, "server.txt", config)
 	if err != nil {
 		panic(err)
 	}
-	err = tmplt.ExecuteTemplate(os.Stdout, "model.txt", config.VoGo)
-	if err != nil {
-		panic(err)
-	}
-
-	// SERVER
-
-	fmt.Println(`func main() {
-	r := gin.Default()
-
-	r.POST("/model", Create)
-	r.GET("/model", Read)
-	r.PUT("/model/:id", Update)
-	r.DELETE("/model/:id", Delete)
-
-
-	r.Run(":8881")
-
-}
-
-func Create(c *gin.Context)  {
-	c.JSON(200, "create")
-}
-
-func Read(c *gin.Context)  {
-	c.JSON(200, "brands")
-}
-
-func Update(c *gin.Context)  {
-	c.JSON(200, "brands")
-}
-
-func Delete(c *gin.Context)  {
-	c.JSON(200, "brands")
-}
-`)
 
 }
 

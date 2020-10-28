@@ -2,13 +2,25 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"github.com/joho/godotenv"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"log"
 	"os"
-	{{range .Imports}} {{ . }} {{end}}}
 )
+
+{{range .ModelsGo}}
+type {{.Name|snakeToCamel}} struct {
+{{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }}
+{{end}}}
+{{end}}
+{{range .VoGo}}
+type {{.Name|snakeToCamel}} struct {
+{{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }}
+{{end}}}
+{{end}}
 
 func main() {
 	err := godotenv.Load()
@@ -18,7 +30,7 @@ func main() {
 	dbport := os.Getenv("DB_PORT")
 	dbuser := os.Getenv("DB_USER")
 	dbpass := os.Getenv("DB_PASS")
-	dbname := os.Getenv("DB_PASS")
+	dbname := os.Getenv("DB_NAME")
 	serverport := os.Getenv("SERVER_PORT")
 
 	dbstr := fmt.Sprintf("%s:%s@tcp(127.0.0.1:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbuser, dbpass, dbport, dbname)
@@ -31,30 +43,38 @@ func main() {
 	r := gin.Default()
 	r.Use(SetDBtoContext(db))
 
-	r.POST("/model", Create)
-	r.GET("/model", Read)
-	r.PUT("/model/:id", Update)
-	r.DELETE("/model/:id", Delete)
+    {{range .ModelsGo}}
+    r.GET("/{{.Name}}", List{{.Name|snakeToCamel }})
+   	r.POST("/{{.Name}}", Create{{.Name|snakeToCamel }})
+   	r.GET("/{{.Name}}/:id", Read{{.Name|snakeToCamel }})
+   	r.PUT("/{{.Name}}/:id", Update{{.Name|snakeToCamel }})
+   	r.DELETE("/{{.Name}}/:id", Delete{{.Name|snakeToCamel }})
+    {{end}}
 
-
-	r.Run(":8881" + serverport)
+	r.Run(":" + serverport)
 }
-
-func Create (c *gin.Context)  {
+{{range .ModelsGo}}
+func Create{{.Name|snakeToCamel }}(c *gin.Context)  {
 	c.JSON(200, "create")
 }
 
-func Read(c *gin.Context)  {
+func List{{.Name|snakeToCamel }}(c *gin.Context)  {
 	c.JSON(200, "read")
 }
 
-func Update(c *gin.Context)  {
+func Read{{.Name|snakeToCamel }}(c *gin.Context)  {
+	c.JSON(200, "read")
+}
+
+func Update{{.Name|snakeToCamel }}(c *gin.Context)  {
 	c.JSON(200, "update")
 }
 
-func Delete(c *gin.Context)  {
+func Delete{{.Name|snakeToCamel }}(c *gin.Context)  {
 	c.JSON(200, "delete")
 }
+{{end}}
+
 
 func SetDBtoContext(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {

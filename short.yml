@@ -12,3 +12,7 @@ models:
   student_on_lesson:
     student: Student
     lesson: Lesson
+vo:
+  location:
+    lat: float
+    lng: float
