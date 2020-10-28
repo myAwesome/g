@@ -1,0 +1,41 @@
+import (
+	"fmt"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/joho/godotenv"
+	"os"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/contrib/static"
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+	"log"
+)
+
+func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	dbport := os.Getenv("DB_PORT")
+	dbuser := os.Getenv("DB_USER")
+	dbpass := os.Getenv("DB_PASS")
+	serverport := os.Getenv("SERVER_PORT")
+
+	dbstr := fmt.Sprintf("%s:%s@tcp(127.0.0.1:%s)/beer?charset=utf8mb4&parseTime=True&loc=Local", dbuser, dbpass, dbport)
+
+	db, err := gorm.Open("mysql", dbstr)
+	if err != nil {
+		log.Fatalf("Got error when connect database, the error is '%v'", err)
+	}
+
+	r := gin.Default()
+	r.Use(SetDBtoContext(db))
+	r.Use(cors.Default())
+
+	r.GET("/", Api)
+	r.GET("/brands", Brands)
+	r.Use(static.Serve("/th", static.LocalFile("./th", true)))
+	r.Use(static.Serve("/img", static.LocalFile("./img", true)))
+	r.Run(":" + serverport)
+
+}

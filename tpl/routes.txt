@@ -1,0 +1,4 @@
+r.POST("/{{.Name}}", Create{{.Name|snakeToCamel}})
+r.GET("/{{.Name}}", Read{{.Name|snakeToCamel}})
+r.PUT("/{{.Name}}/:id", Update{{.Name|snakeToCamel}})
+r.DELETE("/{{.Name}}/:id", Delete{{.Name|snakeToCamel}})

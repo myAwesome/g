@@ -1,17 +1,14 @@
 models:
-  User:
+  student:
     id:         int
     firstname:  string
-    lastname:   string
-    pasword:    string
-  Player:
+  discipline:
     id:         int
-    age:        int
-    right_hand: bool
-    user:       User
-    location:   Location
-
-value_objects:
-    location:
-      lat: float
-      lng: float
+    name:      string
+  lesson:
+    id:         int
+    date: date
+    discipline: Discipline
+  student_on_lesson:
+    student: Student
+    lesson: Lesson

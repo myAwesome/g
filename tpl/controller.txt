@@ -1,0 +1,15 @@
+func Create{{.Name|snakeToCamel}}(c *gin.Context)  {
+	c.JSON(200, "create")
+}
+
+func Read{{.Name|snakeToCamel}}(c *gin.Context)  {
+	c.JSON(200, "brands")
+}
+
+func Update{{.Name|snakeToCamel}}(c *gin.Context)  {
+	c.JSON(200, "brands")
+}
+
+func Delete{{.Name|snakeToCamel}}(c *gin.Context)  {
+	c.JSON(200, "brands")
+}

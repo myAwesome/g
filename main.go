@@ -41,9 +41,11 @@ func toCamelCase(str string) string {
 }
 
 func main() {
-	data, _ := ioutil.ReadFile("models.yml")
+	data, _ := ioutil.ReadFile("short.yml")
 	config := Config{}
 	config.Imports = make(map[string]bool)
+	config.Imports["github.com/gin-gonic/gin"] = true
+
 	err := yaml.Unmarshal([]byte(data), &config)
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -54,6 +56,10 @@ func main() {
 	funcMap := template.FuncMap{
 		"snakeToCamel": toCamelCase,
 	}
+
+
+	// MODELS
+
 
 	fmt.Println("package main \n")
 	if len(config.Imports) > 0 {
@@ -75,6 +81,39 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	// SERVER
+
+	fmt.Println(`func main() {
+	r := gin.Default()
+
+	r.POST("/model", Create)
+	r.GET("/model", Read)
+	r.PUT("/model/:id", Update)
+	r.DELETE("/model/:id", Delete)
+
+
+	r.Run(":8881")
+
+}
+
+func Create(c *gin.Context)  {
+	c.JSON(200, "create")
+}
+
+func Read(c *gin.Context)  {
+	c.JSON(200, "brands")
+}
+
+func Update(c *gin.Context)  {
+	c.JSON(200, "brands")
+}
+
+func Delete(c *gin.Context)  {
+	c.JSON(200, "brands")
+}
+`)
+
 }
 
 func ymlToGo(config *Config) {
