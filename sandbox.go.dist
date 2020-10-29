@@ -1,0 +1,139 @@
+package main
+
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/joho/godotenv"
+	"log"
+	"os"
+)
+
+func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	dbport := os.Getenv("DB_PORT")
+	dbuser := os.Getenv("DB_USER")
+	dbpass := os.Getenv("DB_PASS")
+	dbname := os.Getenv("DB_NAME")
+	serverport := os.Getenv("SERVER_PORT")
+
+	dbstr := fmt.Sprintf("%s:%s@tcp(127.0.0.1:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbuser, dbpass, dbport, dbname)
+
+	db, err := gorm.Open("mysql", dbstr)
+	if err != nil {
+		log.Fatalf("Got error when connect database, the error is '%v'", err)
+	}
+
+	r := gin.Default()
+	r.Use(SetDBtoContext(db))
+
+	r.GET("/model", List)
+	r.POST("/model", Create)
+	r.GET("/model/:id", Read)
+	r.PUT("/model/:id", Update)
+	r.DELETE("/model/:id", Delete)
+
+	r.Run(":" + serverport)
+}
+
+type Student struct {
+	Id 	int `json:"id"`
+	Name   string    `json:"name"`
+}
+
+func (Student) TableName() string {
+	return "student"
+}
+
+
+func List(c *gin.Context) {
+	db := DBInstance(c)
+	var students []Student
+	query := "SELECT * FROM school.student limit 10;"
+	db.Raw(query).Scan(&students)
+	c.JSON(200, students)
+}
+
+func Create(c *gin.Context) {
+	db := DBInstance(c)
+	var student Student
+
+	if err := c.Bind(&student); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := db.Create(&student).Error; err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(201, student)
+}
+
+func Read(c *gin.Context) {
+	db := DBInstance(c)
+	id := c.Params.ByName("id")
+	var student Student
+	if db.First(&student, id).Error != nil {
+		content := gin.H{"error": "transaction with id#" + id + " not found"}
+		c.JSON(404, content)
+		return
+	}
+	c.JSON(200, student)
+}
+
+func Update(c *gin.Context) {
+	db := DBInstance(c)
+	id := c.Params.ByName("id")
+	var student Student
+	if db.First(&student, id).Error != nil {
+		content := gin.H{"error": "student with id#" + id + " not found"}
+		c.JSON(404, content)
+		return
+	}
+
+	if err := c.Bind(&student); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := db.Save(&student).Error; err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, student)
+
+}
+
+func Delete(c *gin.Context) {
+	db := DBInstance(c)
+	id := c.Params.ByName("id")
+	var student Student
+	if db.First(&student, id).Error != nil {
+		content := gin.H{"error": "student with id#" + id + " not found"}
+		c.JSON(404, content)
+		return
+	}
+	if err := db.Delete(&student).Error; err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(204, "deleted")
+}
+
+func SetDBtoContext(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("DB", db)
+		c.Next()
+	}
+}
+
+func DBInstance(c *gin.Context) *gorm.DB {
+	return c.MustGet("DB").(*gorm.DB)
+}

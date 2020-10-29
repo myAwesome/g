@@ -13,9 +13,14 @@ import (
 
 {{range .ModelsGo}}
 type {{.Name|snakeToCamel}} struct {
-{{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }}
+{{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }} `json:"{{ .Name }}"`
 {{end}}}
+func ({{.Name|snakeToCamel}}) TableName() string {
+	return "{{.Name}}"
+}
 {{end}}
+
+
 {{range .VoGo}}
 type {{.Name|snakeToCamel}} struct {
 {{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }}
@@ -54,25 +59,84 @@ func main() {
 	r.Run(":" + serverport)
 }
 {{range .ModelsGo}}
-func Create{{.Name|snakeToCamel }}(c *gin.Context)  {
-	c.JSON(200, "create")
+
+func List{{.Name|snakeToCamel }}(c *gin.Context) {
+	db := DBInstance(c)
+	var list{{.Name|snakeToCamel }} []{{.Name|snakeToCamel }}
+	query := "SELECT * FROM {{.Name }} limit 10;"
+	db.Raw(query).Scan(&list{{.Name|snakeToCamel }})
+	c.JSON(200, list{{.Name|snakeToCamel }})
 }
 
-func List{{.Name|snakeToCamel }}(c *gin.Context)  {
-	c.JSON(200, "read")
+func Create{{.Name|snakeToCamel }}(c *gin.Context) {
+	db := DBInstance(c)
+	var {{.Name }} {{.Name|snakeToCamel }}
+
+	if err := c.Bind(&{{.Name }}); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := db.Create(&{{.Name }}).Error; err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(201, {{.Name }})
 }
 
-func Read{{.Name|snakeToCamel }}(c *gin.Context)  {
-	c.JSON(200, "read")
+func Read{{.Name|snakeToCamel }}(c *gin.Context) {
+	db := DBInstance(c)
+	id := c.Params.ByName("id")
+	var {{.Name }} {{.Name|snakeToCamel }}
+	if db.First(&{{.Name }}, id).Error != nil {
+		content := gin.H{"error": "{{.Name }} with id#" + id + " not found"}
+		c.JSON(404, content)
+		return
+	}
+	c.JSON(200, {{.Name }})
 }
 
-func Update{{.Name|snakeToCamel }}(c *gin.Context)  {
-	c.JSON(200, "update")
+func Update{{.Name|snakeToCamel }}(c *gin.Context) {
+	db := DBInstance(c)
+	id := c.Params.ByName("id")
+	var {{.Name }} {{.Name|snakeToCamel }}
+	if db.First(&{{.Name }}, id).Error != nil {
+		content := gin.H{"error": "{{.Name }} with id#" + id + " not found"}
+		c.JSON(404, content)
+		return
+	}
+
+	if err := c.Bind(&{{.Name }}); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := db.Save(&{{.Name }}).Error; err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, {{.Name }})
+
 }
 
-func Delete{{.Name|snakeToCamel }}(c *gin.Context)  {
-	c.JSON(200, "delete")
+func Delete{{.Name|snakeToCamel }}(c *gin.Context) {
+	db := DBInstance(c)
+	id := c.Params.ByName("id")
+	var {{.Name }} {{.Name|snakeToCamel }}
+	if db.First(&{{.Name }}, id).Error != nil {
+		content := gin.H{"error": "{{.Name }} with id#" + id + " not found"}
+		c.JSON(404, content)
+		return
+	}
+	if err := db.Delete(&{{.Name }}).Error; err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(204, "deleted")
 }
+
 {{end}}
 
 
