@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -11,12 +12,14 @@ import (
 )
 
 type Config struct {
-	Models map[string]map[string]string
-	Vo     map[string]map[string]string
+	Models    map[string]map[string]string
+	Vo        map[string]map[string]string
+	Relations map[string]map[string]string
 
-	ModelsGo []Model
-	VoGo     []Model
-	Imports  map[string]bool
+	ModelsGo    []Model
+	VoGo        []Model
+	RelationsGo []Model
+	Imports     map[string]bool
 }
 
 type Model struct {
@@ -40,7 +43,7 @@ func toCamelCase(str string) string {
 }
 
 func main() {
-	data, _ := ioutil.ReadFile("short.yml")
+	data, _ := ioutil.ReadFile("single.yml")
 	config := Config{}
 	config.Imports = make(map[string]bool)
 
@@ -64,6 +67,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println(config.RelationsGo)
 
 }
 
@@ -115,5 +120,30 @@ func ymlToGo(config *Config) {
 			vo.Fields = append(vo.Fields, f)
 		}
 		config.VoGo = append(config.VoGo, vo)
+	}
+
+	for relName, relFields := range config.Relations {
+		vo := Model{Name: relName}
+		for key, tp := range relFields {
+			f := Fields{Name: key, Type: tp}
+			switch tp {
+			case "date":
+				f.GoType = "time.Time"
+				f.DbType = "DATETIME"
+				if false == config.Imports["time"] {
+					config.Imports["time"] = true
+				}
+			case "text":
+				f.GoType = "string"
+				f.DbType = "DECIMAL"
+			case "float":
+				f.GoType = "float64"
+				f.DbType = "DECIMAL"
+			default:
+				f.GoType = tp
+			}
+			vo.Fields = append(vo.Fields, f)
+		}
+		config.RelationsGo = append(config.RelationsGo, vo)
 	}
 }

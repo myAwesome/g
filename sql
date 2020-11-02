@@ -22,10 +22,8 @@ CREATE TABLE `student` (
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
 CREATE TABLE `student_on_lesson` (
-  `id` int(11) NOT NULL,
   `student_id` int(11) NOT NULL,
   `lesson_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
   KEY `fk_student_on_lesson_1_idx` (`student_id`),
   KEY `fk_student_on_lesson_2_idx` (`lesson_id`),
   CONSTRAINT `fk_student_on_lesson_1` FOREIGN KEY (`student_id`) REFERENCES `student` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,

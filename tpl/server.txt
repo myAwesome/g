@@ -10,7 +10,7 @@ import (
 	"log"
 	"os"
 )
-
+// MODELS
 {{range .ModelsGo}}
 type {{.Name|snakeToCamel}} struct {
 {{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }} `json:"{{ .Name }}"`
@@ -55,6 +55,16 @@ func main() {
    	r.PUT("/{{.Name}}/:id", Update{{.Name|snakeToCamel }})
    	r.DELETE("/{{.Name}}/:id", Delete{{.Name|snakeToCamel }})
     {{end}}
+
+    {{range .RelationsGo}}
+
+    r.POST("/{{.Name}}", Create{{.Name|snakeToCamel }})
+    r.GET("/{{.Name}}/:id", Read{{.Name|snakeToCamel }})
+    r.PUT("/{{.Name}}/:id", Update{{.Name|snakeToCamel }})
+    r.DELETE("/{{.Name}}/:id", Delete{{.Name|snakeToCamel }})
+
+    {{end}}
+
 
 	r.Run(":" + serverport)
 }
