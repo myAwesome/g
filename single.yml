@@ -11,6 +11,6 @@ models:
     date:       date
     discipline: Discipline
 relations:
-  student_on_lesson:
+  student_has_lessons:
     student: id
     lesson:  id

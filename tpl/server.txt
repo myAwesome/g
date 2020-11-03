@@ -58,10 +58,9 @@ func main() {
 
     {{range .RelationsGo}}
 
+    r.GET("/{{.Name}}", Read{{.Name|snakeToCamel }})
     r.POST("/{{.Name}}", Create{{.Name|snakeToCamel }})
-    r.GET("/{{.Name}}/:id", Read{{.Name|snakeToCamel }})
-    r.PUT("/{{.Name}}/:id", Update{{.Name|snakeToCamel }})
-    r.DELETE("/{{.Name}}/:id", Delete{{.Name|snakeToCamel }})
+    r.DELETE("/{{.Name}}/", Delete{{.Name|snakeToCamel }})
 
     {{end}}
 
@@ -147,6 +146,40 @@ func Delete{{.Name|snakeToCamel }}(c *gin.Context) {
 	c.JSON(204, "deleted")
 }
 
+{{end}}
+
+{{range .RelationsGo}}
+func ReadStudentHasLessons(c *gin.Context) {
+	db := DBInstance(c)
+
+	student, isStudent := c.GetQuery("student")
+	lesson, isLessons := c.GetQuery("lesson")
+	type StudentHasLessons struct {
+		Student int
+		Lesson int
+	}
+	var list []StudentHasLessons
+	query := "SELECT * FROM student_has_lessons where 1"
+
+	if  isStudent {
+		query = fmt.Sprintf("%s and student_id = %s ", query, student)
+	}
+
+	if  isLessons {
+		query = fmt.Sprintf("%s and lesson_id = %s ", query, lesson)
+	}
+
+	db.Raw(query).Scan(&list)
+	c.JSON(200, list)
+}
+
+func CreateStudentHasLessons(c *gin.Context) {
+	// TODO
+}
+
+func DeleteStudentHasLessons(c *gin.Context) {
+	// TODO
+}
 {{end}}
 
 

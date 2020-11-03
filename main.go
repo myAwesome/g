@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -67,9 +66,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println(config.RelationsGo)
-
 }
 
 func ymlToGo(config *Config) {
