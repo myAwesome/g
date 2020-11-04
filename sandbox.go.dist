@@ -13,10 +13,10 @@ import (
 // MODELS
 
 type Lesson struct {
- Id int `json:"id"`
- Title string `json:"title"`
- Date time.Time `json:"date"`
- Discipline Discipline `json:"discipline"`
+ Id int 				`json:"id"`
+ Title string 			`json:"title"`
+ Date time.Time 		`json:"date"`
+ Discipline Discipline  `json:"discipline"`
 }
 func (Lesson) TableName() string {
 	return "lesson"
@@ -38,9 +38,14 @@ func (Discipline) TableName() string {
 	return "discipline"
 }
 
+type StudentHasLessons struct {
+	StudentId int `json:"student"`
+	LessonId int `json:"lesson"`
+}
 
-
-
+func (StudentHasLessons) TableName() string {
+	return "student_has_lessons"
+}
 
 func main() {
 	err := godotenv.Load()
@@ -82,15 +87,9 @@ func main() {
    	r.PUT("/discipline/:id", UpdateDiscipline)
    	r.DELETE("/discipline/:id", DeleteDiscipline)
 
-
-
-
     r.GET("/student_has_lessons", ReadStudentHasLessons)
     r.POST("/student_has_lessons", CreateStudentHasLessons)
     r.DELETE("/student_has_lessons", DeleteStudentHasLessons)
-
-
-
 
 	r.Run(":" + serverport)
 }
@@ -173,8 +172,6 @@ func DeleteLesson(c *gin.Context) {
 	c.JSON(204, "deleted")
 }
 
-
-
 func ListStudent(c *gin.Context) {
 	db := DBInstance(c)
 	var listStudent []Student
@@ -251,8 +248,6 @@ func DeleteStudent(c *gin.Context) {
 	}
 	c.JSON(204, "deleted")
 }
-
-
 
 func ListDiscipline(c *gin.Context) {
 	db := DBInstance(c)
@@ -332,15 +327,6 @@ func DeleteDiscipline(c *gin.Context) {
 }
 
 
-type StudentHasLessons struct {
-	StudentId int `json:"student"`
-	LessonId int `json:"lesson"`
-}
-
-func (StudentHasLessons) TableName() string {
-	return "student_has_lessons"
-}
-
 func ReadStudentHasLessons(c *gin.Context) {
 	db := DBInstance(c)
 
@@ -397,7 +383,6 @@ func DeleteStudentHasLessons(c *gin.Context) {
 	db.Exec(query)
 	c.JSON(200, "deleted")
 }
-
 
 
 func SetDBtoContext(db *gorm.DB) gin.HandlerFunc {

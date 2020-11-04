@@ -15,12 +15,20 @@ import (
 type {{.Name|snakeToCamel}} struct {
 {{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }} `json:"{{ .Name }}"`
 {{end}}}
+
 func ({{.Name|snakeToCamel}}) TableName() string {
 	return "{{.Name}}"
 }
 {{end}}
-
-
+{{range .RelationsGo}}
+type {{.Name|snakeToCamel}} struct {
+{{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }} `json:"{{ .Name }}"`
+{{end}}}
+func ({{.Name|snakeToCamel}}) TableName() string {
+	return "{{.Name}}"
+}
+{{end}}
+// Value objects
 {{range .VoGo}}
 type {{.Name|snakeToCamel}} struct {
 {{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }}
@@ -55,15 +63,11 @@ func main() {
    	r.PUT("/{{.Name}}/:id", Update{{.Name|snakeToCamel }})
    	r.DELETE("/{{.Name}}/:id", Delete{{.Name|snakeToCamel }})
     {{end}}
-
     {{range .RelationsGo}}
-
     r.GET("/{{.Name}}", Read{{.Name|snakeToCamel }})
     r.POST("/{{.Name}}", Create{{.Name|snakeToCamel }})
     r.DELETE("/{{.Name}}/", Delete{{.Name|snakeToCamel }})
-
     {{end}}
-
 
 	r.Run(":" + serverport)
 }
@@ -145,40 +149,60 @@ func Delete{{.Name|snakeToCamel }}(c *gin.Context) {
 	}
 	c.JSON(204, "deleted")
 }
-
 {{end}}
-
 {{range .RelationsGo}}
-func ReadStudentHasLessons(c *gin.Context) {
+{{ $relationName := .Name }}
+func Read{{.Name|snakeToCamel }}(c *gin.Context) {
 	db := DBInstance(c)
 
-	student, isStudent := c.GetQuery("student")
-	lesson, isLessons := c.GetQuery("lesson")
-	type StudentHasLessons struct {
-		Student int
-		Lesson int
-	}
-	var list []StudentHasLessons
-	query := "SELECT * FROM student_has_lessons where 1"
+    {{range .Fields}}
+	{{.Name|snakeToCamel }}, is{{.Name|snakeToCamel }} := c.GetQuery("{{.Name}}")
+	{{end}}
 
-	if  isStudent {
-		query = fmt.Sprintf("%s and student_id = %s ", query, student)
-	}
+	var list []{{.Name|snakeToCamel }}
+	query := "SELECT * FROM {{.Name}} where 1"
 
-	if  isLessons {
-		query = fmt.Sprintf("%s and lesson_id = %s ", query, lesson)
+    {{range .Fields}}
+	if  is{{.Name|snakeToCamel }} {
+		query = fmt.Sprintf("%s and {{.Name }} = %s ", query, {{.Name|snakeToCamel }})
 	}
+	{{end}}
 
 	db.Raw(query).Scan(&list)
 	c.JSON(200, list)
 }
 
-func CreateStudentHasLessons(c *gin.Context) {
-	// TODO
+func Create{{.Name|snakeToCamel }}(c *gin.Context) {
+    db := DBInstance(c)
+
+	var {{.Name }} {{.Name|snakeToCamel }}
+	if err := c.Bind(&{{.Name }}); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	if err := db.Create(&{{.Name }}).Error; err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(201, {{.Name }})
 }
 
-func DeleteStudentHasLessons(c *gin.Context) {
-	// TODO
+func Delete{{.Name|snakeToCamel }}(c *gin.Context) {
+    db := DBInstance(c)
+    var {{.Name}} {{.Name|snakeToCamel }}
+    if err := c.Bind(&{{.Name}}); err != nil {
+        c.JSON(400, gin.H{"error": err.Error()})
+        return
+    }
+
+    query := "DELETE FROM {{.Name}} where 1"
+    {{range .Fields}}
+    query = fmt.Sprintf("%s and {{.Name}} = %s ", query, {{$relationName}}.{{.Name|snakeToCamel}})
+    {{end}}
+
+    db.Exec(query)
+    c.JSON(200, "deleted")
 }
 {{end}}
 

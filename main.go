@@ -120,23 +120,17 @@ func ymlToGo(config *Config) {
 
 	for relName, relFields := range config.Relations {
 		vo := Model{Name: relName}
+
 		for key, tp := range relFields {
 			f := Fields{Name: key, Type: tp}
-			switch tp {
-			case "date":
-				f.GoType = "time.Time"
-				f.DbType = "DATETIME"
-				if false == config.Imports["time"] {
-					config.Imports["time"] = true
+			for _, modelType := range config.ModelsGo {
+				if key == modelType.Name {
+					for _, vvalue := range modelType.Fields {
+						if vvalue.Name == tp {
+							f = Fields{Name: key + "_" + vvalue.Name, GoType: vvalue.GoType, DbType: vvalue.DbType}
+						}
+					}
 				}
-			case "text":
-				f.GoType = "string"
-				f.DbType = "DECIMAL"
-			case "float":
-				f.GoType = "float64"
-				f.DbType = "DECIMAL"
-			default:
-				f.GoType = tp
 			}
 			vo.Fields = append(vo.Fields, f)
 		}
