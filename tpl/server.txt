@@ -197,8 +197,9 @@ func Delete{{.Name|snakeToCamel }}(c *gin.Context) {
     }
 
     query := "DELETE FROM {{.Name}} where 1"
+    todo: note for myself = %d only for ints
     {{range .Fields}}
-    query = fmt.Sprintf("%s and {{.Name}} = %s ", query, {{$relationName}}.{{.Name|snakeToCamel}})
+    query = fmt.Sprintf("%s and {{.Name}} = %d ", query, {{$relationName}}.{{.Name|snakeToCamel}})
     {{end}}
 
     db.Exec(query)
