@@ -90,6 +90,7 @@ func main() {
 		"fieldVarName": fieldVarName,
 	}
 
+	// server file
 	tmplt, err := template.New("server.txt").Funcs(funcMap).ParseFiles("tpl/server.txt")
 
 	if err != nil {
@@ -115,6 +116,21 @@ func main() {
 		panic(err)
 	}
 	err = tmpltEnv.ExecuteTemplate(envFile, "env.txt", config.Env)
+	if err != nil {
+		panic(err)
+	}
+
+	// SQL
+	tmpltSql, err := template.New("sql.txt").Funcs(funcMap).ParseFiles("tpl/sql.txt")
+
+	if err != nil {
+		panic(err)
+	}
+	sqlFile, err := os.Create("./app/sql.sql")
+	if err != nil {
+		panic(err)
+	}
+	err = tmpltSql.ExecuteTemplate(sqlFile, "sql.txt", config)
 	if err != nil {
 		panic(err)
 	}

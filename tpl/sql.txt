@@ -1,0 +1,26 @@
+CREATE DATABASE `{{.Env.Db_Name}}`;
+
+{{range .ModelsGo}}
+CREATE TABLE `{{.Name}}` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  {{range .Fields}} `{{.Name}}` {{.DbType}} DEFAULT NULL,{{end}}
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+{{end}}
+
+{{range .RelationsGo}}
+CREATE TABLE `{{.Name}}` (
+  {{range .Fields}}`{{.Name}}` {{.DbType}} NOT NULL, {{end}}
+  {{range .Fields}}KEY `fk_student_on_lesson_2_idx` (`lesson_id`),{{end}}
+  {{range .Fields}}CONSTRAINT `fk_student_on_lesson_1` FOREIGN KEY (`student_id`) REFERENCES `student` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,{{end}}
+) ENGINE=InnoDB;
+{{end}}
+
+CREATE TABLE `lesson` (
+  `id` int(11) NOT NULL,
+  `date` date DEFAULT NULL,
+  `discipline_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_lesson_1_idx` (`discipline_id`),
+  CONSTRAINT `fk_lesson_1` FOREIGN KEY (`discipline_id`) REFERENCES `discipline` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
