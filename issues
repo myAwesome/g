@@ -1,3 +1,5 @@
+
+  - 2 One to many - приходить пусти обєкт по апи
   - 1 yml to sql || go structs to sql
     0 schema validation
     1 sort field inside model struct

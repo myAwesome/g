@@ -14,3 +14,10 @@ relations:
   student_has_lessons:
     student: id
     lesson:  id
+env:
+  db_port: 3309
+  db_user: root
+  db_pass: root
+  db_name: school
+  server_port: 8881
+

@@ -57,16 +57,16 @@ func main() {
 	r.Use(SetDBtoContext(db))
 
     {{range .ModelsGo}}
-    r.GET("/{{.Name}}", List{{.Name|snakeToCamel }})
-   	r.POST("/{{.Name}}", Create{{.Name|snakeToCamel }})
-   	r.GET("/{{.Name}}/:id", Read{{.Name|snakeToCamel }})
-   	r.PUT("/{{.Name}}/:id", Update{{.Name|snakeToCamel }})
-   	r.DELETE("/{{.Name}}/:id", Delete{{.Name|snakeToCamel }})
+    r.GET("/{{.Name|toUrl}}", List{{.Name|snakeToCamel }})
+   	r.POST("/{{.Name|toUrl}}", Create{{.Name|snakeToCamel }})
+   	r.GET("/{{.Name|toUrl}}/:id", Read{{.Name|snakeToCamel }})
+   	r.PUT("/{{.Name|toUrl}}/:id", Update{{.Name|snakeToCamel }})
+   	r.DELETE("/{{.Name|toUrl}}/:id", Delete{{.Name|snakeToCamel }})
     {{end}}
     {{range .RelationsGo}}
-    r.GET("/{{.Name}}", Read{{.Name|snakeToCamel }})
-    r.POST("/{{.Name}}", Create{{.Name|snakeToCamel }})
-    r.DELETE("/{{.Name}}/", Delete{{.Name|snakeToCamel }})
+    r.GET("/{{.Name|toUrl}}", Read{{.Name|snakeToCamel }})
+    r.POST("/{{.Name|toUrl}}", Create{{.Name|snakeToCamel }})
+    r.DELETE("/{{.Name|toUrl}}/", Delete{{.Name|snakeToCamel }})
     {{end}}
 
 	r.Run(":" + serverport)
@@ -151,12 +151,12 @@ func Delete{{.Name|snakeToCamel }}(c *gin.Context) {
 }
 {{end}}
 {{range .RelationsGo}}
-{{ $relationName := .Name }}
+{{ $relationName := .Name|fieldVarName }}
 func Read{{.Name|snakeToCamel }}(c *gin.Context) {
 	db := DBInstance(c)
 
     {{range .Fields}}
-	{{.Name|snakeToCamel }}, is{{.Name|snakeToCamel }} := c.GetQuery("{{.Name}}")
+	{{.Name|fieldVarName }}, is{{.Name|snakeToCamel }} := c.GetQuery("{{.Name}}")
 	{{end}}
 
 	var list []{{.Name|snakeToCamel }}
@@ -164,7 +164,7 @@ func Read{{.Name|snakeToCamel }}(c *gin.Context) {
 
     {{range .Fields}}
 	if  is{{.Name|snakeToCamel }} {
-		query = fmt.Sprintf("%s and {{.Name }} = %s ", query, {{.Name|snakeToCamel }})
+		query = fmt.Sprintf("%s and {{.Name }} = %s ", query, {{.Name|fieldVarName }})
 	}
 	{{end}}
 
@@ -174,30 +174,29 @@ func Read{{.Name|snakeToCamel }}(c *gin.Context) {
 
 func Create{{.Name|snakeToCamel }}(c *gin.Context) {
     db := DBInstance(c)
-
-	var {{.Name }} {{.Name|snakeToCamel }}
-	if err := c.Bind(&{{.Name }}); err != nil {
+	var {{.Name|fieldVarName }} {{.Name|snakeToCamel }}
+	if err := c.Bind(&{{.Name|fieldVarName }}); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	if err := db.Create(&{{.Name }}).Error; err != nil {
+	if err := db.Create(&{{.Name|fieldVarName }}).Error; err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(201, {{.Name }})
+	c.JSON(201, {{.Name|fieldVarName }})
 }
 
 func Delete{{.Name|snakeToCamel }}(c *gin.Context) {
     db := DBInstance(c)
-    var {{.Name}} {{.Name|snakeToCamel }}
-    if err := c.Bind(&{{.Name}}); err != nil {
+    var {{$relationName}} {{.Name|snakeToCamel }}
+    if err := c.Bind(&{{.Name|fieldVarName}}); err != nil {
         c.JSON(400, gin.H{"error": err.Error()})
         return
     }
 
     query := "DELETE FROM {{.Name}} where 1"
-    todo: note for myself = %d only for ints
+
     {{range .Fields}}
     query = fmt.Sprintf("%s and {{.Name}} = %d ", query, {{$relationName}}.{{.Name|snakeToCamel}})
     {{end}}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -11,14 +12,22 @@ import (
 )
 
 type Config struct {
-	Models    map[string]map[string]string
-	Vo        map[string]map[string]string
-	Relations map[string]map[string]string
-
+	Models      map[string]map[string]string
+	Vo          map[string]map[string]string
+	Relations   map[string]map[string]string
+	Env         Env
 	ModelsGo    []Model
 	VoGo        []Model
 	RelationsGo []Model
 	Imports     map[string]bool
+}
+
+type Env struct {
+	Db_Port     int
+	Db_User     string
+	Db_Pass     string
+	Db_Name     string
+	Server_Port int
 }
 
 type Model struct {
@@ -41,6 +50,28 @@ func toCamelCase(str string) string {
 	})
 }
 
+func toUrl(str string) string {
+	return link.ReplaceAllStringFunc(str, func(s string) string {
+		return strings.Replace(s, "_", "-", -1)
+	})
+}
+
+func fieldVarName(str string) string {
+	strCC := toCamelCase(str)
+
+	if len(strCC) < 2 {
+		return strings.ToLower(strCC)
+	}
+
+	bts := []byte(strCC)
+
+	lc := bytes.ToLower([]byte{bts[0]})
+	rest := bts[1:]
+
+	return string(bytes.Join([][]byte{lc, rest}, nil))
+
+}
+
 func main() {
 	data, _ := ioutil.ReadFile("single.yml")
 	config := Config{}
@@ -55,6 +86,8 @@ func main() {
 
 	funcMap := template.FuncMap{
 		"snakeToCamel": toCamelCase,
+		"toUrl":        toUrl,
+		"fieldVarName": fieldVarName,
 	}
 
 	tmplt, err := template.New("server.txt").Funcs(funcMap).ParseFiles("tpl/server.txt")
@@ -62,10 +95,30 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	err = tmplt.ExecuteTemplate(os.Stdout, "server.txt", config)
+	file, err := os.Create("./app/server.go")
 	if err != nil {
 		panic(err)
 	}
+	err = tmplt.ExecuteTemplate(file, "server.txt", config)
+	if err != nil {
+		panic(err)
+	}
+
+	// ENV file
+	tmpltEnv, err := template.New("env.txt").Funcs(funcMap).ParseFiles("tpl/env.txt")
+
+	if err != nil {
+		panic(err)
+	}
+	envFile, err := os.Create("./app/.env")
+	if err != nil {
+		panic(err)
+	}
+	err = tmpltEnv.ExecuteTemplate(envFile, "env.txt", config.Env)
+	if err != nil {
+		panic(err)
+	}
+
 }
 
 func ymlToGo(config *Config) {
@@ -117,7 +170,6 @@ func ymlToGo(config *Config) {
 		}
 		config.VoGo = append(config.VoGo, vo)
 	}
-
 	for relName, relFields := range config.Relations {
 		vo := Model{Name: relName}
 
