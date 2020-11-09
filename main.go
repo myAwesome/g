@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -32,14 +33,17 @@ type Env struct {
 
 type Model struct {
 	Name   string
-	Fields []Fields
+	Fields []Field
 }
 
-type Fields struct {
+type Field struct {
 	Name   string
 	Type   string
 	GoType string
 	DbType string
+
+	IsId       bool
+	IsRelation bool
 }
 
 var link = regexp.MustCompile("(^[A-Za-z])|_([A-Za-z])")
@@ -72,6 +76,10 @@ func fieldVarName(str string) string {
 
 }
 
+func count(arr []Field) int {
+	return len(arr)
+}
+
 func main() {
 	data, _ := ioutil.ReadFile("single.yml")
 	config := Config{}
@@ -88,9 +96,11 @@ func main() {
 		"snakeToCamel": toCamelCase,
 		"toUrl":        toUrl,
 		"fieldVarName": fieldVarName,
+		"count":        count,
 	}
 
 	// server file
+	fmt.Println("server generating...")
 	tmplt, err := template.New("server.txt").Funcs(funcMap).ParseFiles("tpl/server.txt")
 
 	if err != nil {
@@ -106,6 +116,7 @@ func main() {
 	}
 
 	// ENV file
+	fmt.Println("env generating...")
 	tmpltEnv, err := template.New("env.txt").Funcs(funcMap).ParseFiles("tpl/env.txt")
 
 	if err != nil {
@@ -121,6 +132,7 @@ func main() {
 	}
 
 	// SQL
+	fmt.Println("sql generating...")
 	tmpltSql, err := template.New("sql.txt").Funcs(funcMap).ParseFiles("tpl/sql.txt")
 
 	if err != nil {
@@ -136,12 +148,13 @@ func main() {
 	}
 
 }
-
 func ymlToGo(config *Config) {
 	for modelName, modelFields := range config.Models {
 		m := Model{Name: modelName}
 		for key, tp := range modelFields {
-			f := Fields{Name: key, Type: tp}
+			f := Field{Name: key, Type: tp}
+			f.IsId = key == "id"
+			f.IsRelation = false
 			switch tp {
 			case "date":
 				f.GoType = "time.Time"
@@ -149,13 +162,26 @@ func ymlToGo(config *Config) {
 				if false == config.Imports["time"] {
 					config.Imports["time"] = true
 				}
+				break
 			case "text":
 				f.GoType = "string"
 				f.DbType = "LONGTEXT"
+				break
 			case "float":
 				f.GoType = "float64"
 				f.DbType = "DECIMAL"
+				break
+			case "int":
+				f.GoType = "int"
+				f.DbType = "INT(11)"
+				break
+			case "string":
+				f.GoType = "string"
+				f.DbType = "VARCHAR(255)"
+				break
 			default:
+				f.IsRelation = true
+				f.IsId = true
 				f.GoType = tp
 			}
 			m.Fields = append(m.Fields, f)
@@ -165,7 +191,7 @@ func ymlToGo(config *Config) {
 	for voName, voFields := range config.Vo {
 		vo := Model{Name: voName}
 		for key, tp := range voFields {
-			f := Fields{Name: key, Type: tp}
+			f := Field{Name: key, Type: tp}
 			switch tp {
 			case "date":
 				f.GoType = "time.Time"
@@ -173,12 +199,23 @@ func ymlToGo(config *Config) {
 				if false == config.Imports["time"] {
 					config.Imports["time"] = true
 				}
+				break
 			case "text":
 				f.GoType = "string"
-				f.DbType = "DECIMAL"
+				f.DbType = "LONGTEXT"
+				break
 			case "float":
 				f.GoType = "float64"
 				f.DbType = "DECIMAL"
+				break
+			case "int":
+				f.GoType = "int"
+				f.DbType = "INT(11)"
+				break
+			case "string":
+				f.GoType = "string"
+				f.DbType = "VARCHAR(255)"
+				break
 			default:
 				f.GoType = tp
 			}
@@ -186,16 +223,16 @@ func ymlToGo(config *Config) {
 		}
 		config.VoGo = append(config.VoGo, vo)
 	}
+
 	for relName, relFields := range config.Relations {
 		vo := Model{Name: relName}
-
 		for key, tp := range relFields {
-			f := Fields{Name: key, Type: tp}
+			f := Field{Name: key, Type: tp}
 			for _, modelType := range config.ModelsGo {
 				if key == modelType.Name {
 					for _, vvalue := range modelType.Fields {
 						if vvalue.Name == tp {
-							f = Fields{Name: key + "_" + vvalue.Name, GoType: vvalue.GoType, DbType: vvalue.DbType}
+							f = Field{Name: key, Type: tp, GoType: vvalue.GoType, DbType: vvalue.DbType}
 						}
 					}
 				}

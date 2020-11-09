@@ -15,9 +15,9 @@ relations:
     student: id
     lesson:  id
 env:
-  db_port: 3309
-  db_user: root
-  db_pass: root
-  db_name: school
+  db_port: 3306
+  db_user: vova
+  db_pass: vova
+  db_name: classroom
   server_port: 8881
 
