@@ -1,4 +1,4 @@
-
+  - порядок таблиць в sql
   - 2 One to many - приходить пустий обєкт по апи
   - 1 yml to sql || go structs to sql
     0 schema validation

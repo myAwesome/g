@@ -77,7 +77,7 @@ func fieldVarName(str string) string {
 }
 
 func count(arr []Field) int {
-	return len(arr)
+	return len(arr) - 1
 }
 
 func main() {
@@ -98,7 +98,6 @@ func main() {
 		"fieldVarName": fieldVarName,
 		"count":        count,
 	}
-
 	// server file
 	fmt.Println("server generating...")
 	tmplt, err := template.New("server.txt").Funcs(funcMap).ParseFiles("tpl/server.txt")
@@ -178,6 +177,12 @@ func ymlToGo(config *Config) {
 			case "string":
 				f.GoType = "string"
 				f.DbType = "VARCHAR(255)"
+				break
+			// todo: Many To One Relation
+			case "rel":
+				f.GoType = "int"
+				f.IsRelation = true
+				f.IsId = true
 				break
 			default:
 				f.IsRelation = true

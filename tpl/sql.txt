@@ -1,30 +1,17 @@
-{{$schema := .Env.Db_Name }}
-CREATE DATABASE `{{$schema}}`;
-{{range .ModelsGo}}
-{{$table := .Name }}
-
+{{$schema := .Env.Db_Name }}CREATE DATABASE `{{$schema}}`;{{range .ModelsGo}}{{$table := .Name }}
 CREATE TABLE `{{$schema}}`.`{{$table}}` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  {{range .Fields}}
-  {{ if not .IsId }} `{{.Name}}` {{.DbType}} DEFAULT NULL,   {{end}}
-  {{ if .IsRelation }}
-   `{{.Name}}_id` int(11) DEFAULT NULL,
-   KEY `fk_{{$table}}_1_idx` (`{{.Name}}_id`),
-   CONSTRAINT `fk_{{$table}}_1` FOREIGN KEY (`{{.Name}}_id`) REFERENCES `{{.Name}}` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-   {{end}}
-  {{end}} PRIMARY KEY (`id`)
+  `id` int(11) NOT NULL AUTO_INCREMENT,{{range .Fields}}{{ if not .IsId }}`{{.Name}}` {{.DbType}} DEFAULT NULL, {{end}}
+  {{ if .IsRelation }}`{{.Name}}` int(11) DEFAULT NULL,
+   KEY `fk_{{$table}}_1_idx` (`{{.Name}}`),
+   CONSTRAINT `fk_{{$table}}_1` FOREIGN KEY (`{{.Name}}`) REFERENCES `{{.Name}}` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+   {{end}}{{end}} PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 {{end}}
 {{range .RelationsGo}}{{$relationTableName := .Name }}
-CREATE TABLE `{{$schema}}.{{.Name}}` (
-  {{.Fields|count}}
-  {{range .Fields}}`{{.Name}}_{{.Type}}` {{.DbType}} NOT NULL,
-  {{end}}{{range .Fields}}KEY `fk_{{$relationTableName}}_{{.Name}}_{{.Type}}x` (`{{.Name}}_{{.Type}}`),
-  {{end}}
-
-
-  {{range .Fields}}
-  CONSTRAINT `fk_{{$relationTableName}}_{{.Name}}` FOREIGN KEY (`{{.Name}}_{{.Type}}`) REFERENCES `{{.Name}}` (`{{.Type}}`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  {{end}}
+CREATE TABLE `{{$schema}}`.`{{.Name}}` (
+  {{range .Fields}}`{{.Name}}` {{.DbType}} NOT NULL,
+  {{end}}{{range .Fields}}KEY `fk_{{$relationTableName}}_{{.Name}}` (`{{.Name}}`),
+  {{end}}{{$countField := .Fields|count}}{{range $index, $field := .Fields}}
+  CONSTRAINT `fk_{{$relationTableName}}_{{$field.Name}}` FOREIGN KEY (`{{$field.Name}}`) REFERENCES `{{$field.Name}}` (`{{$field.Type}}`) ON DELETE NO ACTION ON UPDATE NO ACTION{{if ne $index $countField }},{{end}}{{end}}
 ) ENGINE=InnoDB;
 {{end}}
