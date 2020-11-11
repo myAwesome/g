@@ -1,8 +1,9 @@
+  - file with routes
+  - ./server.go:5:2: imported and not used: "time"  - WHEN NO DATE FIELD
+  - fixtures
   - порядок таблиць в sql
   - 2 One to many - приходить пустий обєкт по апи
-  - 1 yml to sql || go structs to sql
     0 schema validation
-    1 sort field inside model struct
     2 ten demo projects - ideas
       - food diary
       - журнал відвідуваності

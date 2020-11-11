@@ -2,8 +2,8 @@
 CREATE TABLE `{{$schema}}`.`{{$table}}` (
   `id` int(11) NOT NULL AUTO_INCREMENT,{{range .Fields}}{{ if not .IsId }}`{{.Name}}` {{.DbType}} DEFAULT NULL, {{end}}
   {{ if .IsRelation }}`{{.Name}}` int(11) DEFAULT NULL,
-   KEY `fk_{{$table}}_1_idx` (`{{.Name}}`),
-   CONSTRAINT `fk_{{$table}}_1` FOREIGN KEY (`{{.Name}}`) REFERENCES `{{.Name}}` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+   KEY `fk_{{$table}}_{{.Name}}_idx` (`{{.Name}}`),
+   CONSTRAINT `fk_{{$table}}_{{.Name}}` FOREIGN KEY (`{{.Name}}`) REFERENCES `{{.Name}}` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
    {{end}}{{end}} PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 {{end}}
