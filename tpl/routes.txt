@@ -1,0 +1,11 @@
+{{ $port := .Env.Server_Port }}{{range .ModelsGo}}
+http://localhost:{{$port}}/{{.Name|toUrl}}
+http://localhost:{{$port}}/{{.Name|toUrl}}
+http://localhost:{{$port}}/{{.Name|toUrl}}/:id
+http://localhost:{{$port}}/{{.Name|toUrl}}/:id
+http://localhost:{{$port}}/{{.Name|toUrl}}/:id
+{{end}}{{range .RelationsGo}}
+http://localhost:{{$port}}/{{.Name|toUrl}}
+http://localhost:{{$port}}/{{.Name|toUrl}}
+http://localhost:{{$port}}/{{.Name|toUrl}}
+{{end}}

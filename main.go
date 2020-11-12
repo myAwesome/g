@@ -81,7 +81,11 @@ func count(arr []Field) int {
 }
 
 func main() {
-	data, _ := ioutil.ReadFile("single.yml")
+	fileName := os.Getenv("YML")
+	if fileName == "" {
+		fileName = "single.yml"
+	}
+	data, _ := ioutil.ReadFile(fileName)
 	config := Config{}
 	config.Imports = make(map[string]bool)
 
@@ -142,6 +146,22 @@ func main() {
 		panic(err)
 	}
 	err = tmpltSql.ExecuteTemplate(sqlFile, "sql.txt", config)
+	if err != nil {
+		panic(err)
+	}
+
+	// ROUTES
+	fmt.Println("routes generating...")
+	tmpltRoutes, err := template.New("routes.txt").Funcs(funcMap).ParseFiles("tpl/routes.txt")
+
+	if err != nil {
+		panic(err)
+	}
+	routesFile, err := os.Create("./app/routes.txt")
+	if err != nil {
+		panic(err)
+	}
+	err = tmpltRoutes.ExecuteTemplate(routesFile, "routes.txt", config)
 	if err != nil {
 		panic(err)
 	}
