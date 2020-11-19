@@ -13,14 +13,15 @@ import (
 )
 
 type Config struct {
-	Models      map[string]map[string]string
-	Vo          map[string]map[string]string
-	Relations   map[string]map[string]string
+	Models    map[string]map[string]string
+	Vo        map[string]map[string]string
+	Relations map[string]map[string]string
+	Imports   map[string]bool
+
 	Env         Env
 	ModelsGo    []Model
 	VoGo        []Model
 	RelationsGo []Model
-	Imports     map[string]bool
 }
 
 type Env struct {
@@ -29,6 +30,7 @@ type Env struct {
 	Db_Pass     string
 	Db_Name     string
 	Server_Port int
+	Project     string
 }
 
 type Model struct {
@@ -102,6 +104,17 @@ func main() {
 		"fieldVarName": fieldVarName,
 		"count":        count,
 	}
+
+	fmt.Println(" ")
+	fmt.Println("BACK ...")
+	fmt.Println(" ")
+
+	backFolderName := "./app/back"
+	err = os.Mkdir(backFolderName, 0750)
+	if err != nil {
+		panic(err)
+	}
+
 	// server file
 	fmt.Println("server generating...")
 	tmplt, err := template.New("server.txt").Funcs(funcMap).ParseFiles("tpl/server.txt")
@@ -109,7 +122,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	file, err := os.Create("./app/server.go")
+	file, err := os.Create(backFolderName + "/server.go")
 	if err != nil {
 		panic(err)
 	}
@@ -125,7 +138,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	envFile, err := os.Create("./app/.env")
+	envFile, err := os.Create(backFolderName + "/.env")
 	if err != nil {
 		panic(err)
 	}
@@ -141,7 +154,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	sqlFile, err := os.Create("./app/sql.sql")
+	sqlFile, err := os.Create(backFolderName + "/sql.sql")
 	if err != nil {
 		panic(err)
 	}
@@ -157,7 +170,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	routesFile, err := os.Create("./app/routes.txt")
+
+	routesFile, err := os.Create(backFolderName + "/routes.txt")
 	if err != nil {
 		panic(err)
 	}
@@ -166,6 +180,89 @@ func main() {
 		panic(err)
 	}
 
+	fmt.Println(" ")
+	fmt.Println("FRONT ...")
+	fmt.Println(" ")
+
+	frontFolderName := "./app/front"
+	err = os.Mkdir(frontFolderName, 0750)
+	if err != nil {
+		panic(err)
+	}
+
+	// INDEX
+	indexFront, err := template.New("index.txt").Funcs(funcMap).ParseFiles("tpl/front/index.txt")
+	if err != nil {
+		panic(err)
+	}
+	indexFrontFile, err := os.Create(frontFolderName + "/index.html")
+	if err != nil {
+		panic(err)
+	}
+	err = indexFront.ExecuteTemplate(indexFrontFile, "index.txt", config.Env.Project)
+	if err != nil {
+		panic(err)
+	}
+
+	// package
+	packageFrontTmplt, err := template.New("package.txt").Funcs(funcMap).ParseFiles("tpl/front/package.txt")
+	if err != nil {
+		panic(err)
+	}
+	packageFrontFile, err := os.Create(frontFolderName + "/package.json")
+	if err != nil {
+		panic(err)
+	}
+	err = packageFrontTmplt.ExecuteTemplate(packageFrontFile, "package.txt", config.Env.Project)
+	if err != nil {
+		panic(err)
+	}
+
+	// index.js
+	indexjsFrontTmplt, err := template.New("indexjs.txt").Funcs(funcMap).ParseFiles("tpl/front/indexjs.txt")
+	if err != nil {
+		panic(err)
+	}
+	indexjsFrontFile, err := os.Create(frontFolderName + "/index.js")
+	if err != nil {
+		panic(err)
+	}
+	err = indexjsFrontTmplt.ExecuteTemplate(indexjsFrontFile, "indexjs.txt", config)
+	if err != nil {
+		panic(err)
+	}
+
+	// app.js
+	appjsFrontTmplt, err := template.New("appjs.txt").Funcs(funcMap).ParseFiles("tpl/front/appjs.txt")
+	if err != nil {
+		panic(err)
+	}
+	appjsFrontFile, err := os.Create(frontFolderName + "/App.js")
+	if err != nil {
+		panic(err)
+	}
+	err = appjsFrontTmplt.ExecuteTemplate(appjsFrontFile, "appjs.txt", config)
+	if err != nil {
+		panic(err)
+	}
+
+	componentFrontTmplt, err := template.New("frc.txt").Funcs(funcMap).ParseFiles("tpl/front/frc.txt")
+	if err != nil {
+		panic(err)
+	}
+
+	for _, v := range config.ModelsGo {
+		fmt.Println(v)
+
+		frcFile, err := os.Create(frontFolderName + "/" + v.Name + ".js")
+		if err != nil {
+			panic(err)
+		}
+		err = componentFrontTmplt.ExecuteTemplate(frcFile, "frc.txt", v)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 func ymlToGo(config *Config) {
 	for modelName, modelFields := range config.Models {
@@ -202,17 +299,36 @@ func ymlToGo(config *Config) {
 			case "rel":
 				f.GoType = "int"
 				f.IsRelation = true
-				f.IsId = true
+				f.DbType = "INT(11)"
 				break
 			default:
 				f.IsRelation = true
-				f.IsId = true
 				f.GoType = tp
 			}
 			m.Fields = append(m.Fields, f)
 		}
 		config.ModelsGo = append(config.ModelsGo, m)
 	}
+
+	for relName, relFields := range config.Relations {
+		vo := Model{Name: relName}
+		for key, tp := range relFields {
+			f := Field{Name: key, Type: tp}
+			for _, modelType := range config.ModelsGo {
+				if key == modelType.Name {
+					for _, vvalue := range modelType.Fields {
+						if vvalue.Name == tp {
+							f = Field{Name: key, Type: tp, GoType: vvalue.GoType, DbType: vvalue.DbType}
+						}
+					}
+				}
+			}
+			vo.Fields = append(vo.Fields, f)
+		}
+		config.RelationsGo = append(config.RelationsGo, vo)
+	}
+
+	// FOR ver 2.0
 	for voName, voFields := range config.Vo {
 		vo := Model{Name: voName}
 		for key, tp := range voFields {
@@ -247,23 +363,5 @@ func ymlToGo(config *Config) {
 			vo.Fields = append(vo.Fields, f)
 		}
 		config.VoGo = append(config.VoGo, vo)
-	}
-
-	for relName, relFields := range config.Relations {
-		vo := Model{Name: relName}
-		for key, tp := range relFields {
-			f := Field{Name: key, Type: tp}
-			for _, modelType := range config.ModelsGo {
-				if key == modelType.Name {
-					for _, vvalue := range modelType.Fields {
-						if vvalue.Name == tp {
-							f = Field{Name: key, Type: tp, GoType: vvalue.GoType, DbType: vvalue.DbType}
-						}
-					}
-				}
-			}
-			vo.Fields = append(vo.Fields, f)
-		}
-		config.RelationsGo = append(config.RelationsGo, vo)
 	}
 }

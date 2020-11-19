@@ -1,11 +1,11 @@
 {{ $port := .Env.Server_Port }}{{range .ModelsGo}}
-http://localhost:{{$port}}/{{.Name|toUrl}}
-http://localhost:{{$port}}/{{.Name|toUrl}}
-http://localhost:{{$port}}/{{.Name|toUrl}}/:id
-http://localhost:{{$port}}/{{.Name|toUrl}}/:id
-http://localhost:{{$port}}/{{.Name|toUrl}}/:id
+GET    http://localhost:{{$port}}/{{.Name|toUrl}}
+POST   http://localhost:{{$port}}/{{.Name|toUrl}}
+GET    http://localhost:{{$port}}/{{.Name|toUrl}}/:id
+PUT    http://localhost:{{$port}}/{{.Name|toUrl}}/:id
+DELETE http://localhost:{{$port}}/{{.Name|toUrl}}/:id
 {{end}}{{range .RelationsGo}}
-http://localhost:{{$port}}/{{.Name|toUrl}}
-http://localhost:{{$port}}/{{.Name|toUrl}}
-http://localhost:{{$port}}/{{.Name|toUrl}}
+GET    http://localhost:{{$port}}/{{.Name|toUrl}}
+POST   http://localhost:{{$port}}/{{.Name|toUrl}}
+DELETE http://localhost:{{$port}}/{{.Name|toUrl}}
 {{end}}

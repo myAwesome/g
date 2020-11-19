@@ -10,14 +10,15 @@ models:
     title:      string
     date:       date
     discipline: rel
-relations:
   student_has_lessons:
-    student: id
-    lesson:  id
+    id:         int
+    student:    rel
+    lesson:     rel
 env:
-  db_port: 3309
-  db_user: root
-  db_pass: root
-  db_name: classroom_w
+  project: classroom
+  db_port: 3306
+  db_user: vova
+  db_pass: vova
+  db_name: classroom_rel2
   server_port: 8881
 

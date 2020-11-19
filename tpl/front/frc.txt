@@ -1,0 +1,17 @@
+import * as React from "react";
+import { Create, SimpleForm, TextInput, DateTimeInput, ReferenceInput, SelectInput } from 'react-admin';
+
+export const Create{{.Name|snakeToCamel}} = (props) => (
+    <Create {...props}>
+        <SimpleForm>
+
+
+
+            <ReferenceInput label="discipline" source="discipline" reference="discipline" >
+                <SelectInput optionText="name" />
+            </ReferenceInput>
+            <TextInput source="title" />
+            <DateTimeInput source="date" />
+        </SimpleForm>
+    </Create>
+);

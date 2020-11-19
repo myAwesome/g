@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"time"
 	"github.com/joho/godotenv"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"log"
 	"os"
+	"github.com/gin-contrib/cors"
+	{{ range  $key, $val := .Imports }} "{{ $key }}" {{end}}
 )
 // MODELS
 {{range .ModelsGo}}
@@ -52,9 +53,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Got error when connect database, the error is '%v'", err)
 	}
-
 	r := gin.Default()
 	r.Use(SetDBtoContext(db))
+	r.Use(cors.Default())
 
     {{range .ModelsGo}}
     r.GET("/{{.Name|toUrl}}", List{{.Name|snakeToCamel }})
@@ -78,7 +79,9 @@ func List{{.Name|snakeToCamel }}(c *gin.Context) {
 	var list{{.Name|snakeToCamel }} []{{.Name|snakeToCamel }}
 	query := "SELECT * FROM {{.Name }} limit 10;"
 	db.Raw(query).Scan(&list{{.Name|snakeToCamel }})
-	c.JSON(200, list{{.Name|snakeToCamel }})
+    c.Header("X-Total-Count", "10")
+    c.Header("Access-Control-Expose-Headers", "*")
+    c.JSON(200, list{{.Name|snakeToCamel }})
 }
 
 func Create{{.Name|snakeToCamel }}(c *gin.Context) {
@@ -205,7 +208,6 @@ func Delete{{.Name|snakeToCamel }}(c *gin.Context) {
     c.JSON(200, "deleted")
 }
 {{end}}
-
 
 func SetDBtoContext(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {

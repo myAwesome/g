@@ -1,5 +1,5 @@
+
 - FRONT !!!
-- ./server.go:5:2: imported and not used: "time"  - WHEN NO DATE FIELD
 
 ten demo projects - ideas
 - food diary
@@ -18,4 +18,4 @@ ten demo projects - ideas
 3  версії 2.0
    schema validation
    VO залишимо для
-   порядок таблиць в sql
+
