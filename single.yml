@@ -1,13 +1,13 @@
 models:
   student:
     id:         int
-    firstname:  string
+    name:       string
   discipline:
     id:         int
     name:       string
   lesson:
     id:         int
-    title:      string
+    name:       string
     date:       date
     discipline: rel
   student_has_lessons:

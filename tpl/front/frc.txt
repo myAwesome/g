@@ -1,17 +1,17 @@
 import * as React from "react";
-import { Create, SimpleForm, TextInput, DateTimeInput, ReferenceInput, SelectInput } from 'react-admin';
+import { Create, SimpleForm, TextInput, DateTimeInput,DateInput,  ReferenceInput, SelectInput } from 'react-admin';
 
 export const Create{{.Name|snakeToCamel}} = (props) => (
     <Create {...props}>
         <SimpleForm>
-
-
-
-            <ReferenceInput label="discipline" source="discipline" reference="discipline" >
+        {{range .Fields}} {{ if not .IsId }} {{ if not .IsRelation }}
+                <{{.ReactType}} source="{{.Name}}"/>{{end}}{{end}}
+            {{ if .IsRelation }}
+            <ReferenceInput label="{{.Name}}" source="{{.Name}}" reference="{{.Name}}" >
                 <SelectInput optionText="name" />
             </ReferenceInput>
-            <TextInput source="title" />
-            <DateTimeInput source="date" />
+            {{end}}
+        {{end}}
         </SimpleForm>
     </Create>
 );

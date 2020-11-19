@@ -39,10 +39,11 @@ type Model struct {
 }
 
 type Field struct {
-	Name   string
-	Type   string
-	GoType string
-	DbType string
+	Name      string
+	Type      string
+	GoType    string
+	DbType    string
+	ReactType string
 
 	IsId       bool
 	IsRelation bool
@@ -108,6 +109,11 @@ func main() {
 	fmt.Println(" ")
 	fmt.Println("BACK ...")
 	fmt.Println(" ")
+
+	err = os.Mkdir("./app", 0750)
+	if err != nil {
+		panic(err)
+	}
 
 	backFolderName := "./app/back"
 	err = os.Mkdir(backFolderName, 0750)
@@ -190,12 +196,17 @@ func main() {
 		panic(err)
 	}
 
+	err = os.Mkdir(frontFolderName+"/public", 0750)
+	if err != nil {
+		panic(err)
+	}
+
 	// INDEX
 	indexFront, err := template.New("index.txt").Funcs(funcMap).ParseFiles("tpl/front/index.txt")
 	if err != nil {
 		panic(err)
 	}
-	indexFrontFile, err := os.Create(frontFolderName + "/index.html")
+	indexFrontFile, err := os.Create(frontFolderName + "/public/index.html")
 	if err != nil {
 		panic(err)
 	}
@@ -219,11 +230,16 @@ func main() {
 	}
 
 	// index.js
+	err = os.Mkdir(frontFolderName+"/src", 0750)
+	if err != nil {
+		panic(err)
+	}
+
 	indexjsFrontTmplt, err := template.New("indexjs.txt").Funcs(funcMap).ParseFiles("tpl/front/indexjs.txt")
 	if err != nil {
 		panic(err)
 	}
-	indexjsFrontFile, err := os.Create(frontFolderName + "/index.js")
+	indexjsFrontFile, err := os.Create(frontFolderName + "/src/index.js")
 	if err != nil {
 		panic(err)
 	}
@@ -237,7 +253,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	appjsFrontFile, err := os.Create(frontFolderName + "/App.js")
+	appjsFrontFile, err := os.Create(frontFolderName + "/src/App.js")
 	if err != nil {
 		panic(err)
 	}
@@ -252,9 +268,12 @@ func main() {
 	}
 
 	for _, v := range config.ModelsGo {
-		fmt.Println(v)
+		err = os.Mkdir(frontFolderName+"/src/"+v.Name, 0750)
+		if err != nil {
+			panic(err)
+		}
 
-		frcFile, err := os.Create(frontFolderName + "/" + v.Name + ".js")
+		frcFile, err := os.Create(frontFolderName + "/src/" + v.Name + "/create.js")
 		if err != nil {
 			panic(err)
 		}
@@ -264,6 +283,7 @@ func main() {
 		}
 	}
 }
+
 func ymlToGo(config *Config) {
 	for modelName, modelFields := range config.Models {
 		m := Model{Name: modelName}
@@ -275,6 +295,7 @@ func ymlToGo(config *Config) {
 			case "date":
 				f.GoType = "time.Time"
 				f.DbType = "DATETIME"
+				f.ReactType = "DateInput"
 				if false == config.Imports["time"] {
 					config.Imports["time"] = true
 				}
@@ -282,18 +303,22 @@ func ymlToGo(config *Config) {
 			case "text":
 				f.GoType = "string"
 				f.DbType = "LONGTEXT"
+				f.ReactType = "RichTextInput"
 				break
 			case "float":
 				f.GoType = "float64"
 				f.DbType = "DECIMAL"
+				f.ReactType = "NumberInput"
 				break
 			case "int":
 				f.GoType = "int"
 				f.DbType = "INT(11)"
+				f.ReactType = "NumberInput"
 				break
 			case "string":
 				f.GoType = "string"
 				f.DbType = "VARCHAR(255)"
+				f.ReactType = "TextInput"
 				break
 			// todo: Many To One Relation
 			case "rel":
