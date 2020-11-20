@@ -1,0 +1,9 @@
+go run main.go &&
+cd ./app/back &&
+mysql -uvova -pvova < sql.sql &&
+go build server.go &&
+cd ./../front &&
+yarn install &&
+yarn start
+
+

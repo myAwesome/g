@@ -267,6 +267,11 @@ func main() {
 		panic(err)
 	}
 
+	componentFrontEditTmplt, err := template.New("fr-edit.txt").Funcs(funcMap).ParseFiles("tpl/front/fr-edit.txt")
+	if err != nil {
+		panic(err)
+	}
+
 	for _, v := range config.ModelsGo {
 		err = os.Mkdir(frontFolderName+"/src/"+v.Name, 0750)
 		if err != nil {
@@ -278,6 +283,15 @@ func main() {
 			panic(err)
 		}
 		err = componentFrontTmplt.ExecuteTemplate(frcFile, "frc.txt", v)
+		if err != nil {
+			panic(err)
+		}
+
+		freditFile, err := os.Create(frontFolderName + "/src/" + v.Name + "/edit.js")
+		if err != nil {
+			panic(err)
+		}
+		err = componentFrontEditTmplt.ExecuteTemplate(freditFile, "fr-edit.txt", v)
 		if err != nil {
 			panic(err)
 		}
@@ -295,7 +309,7 @@ func ymlToGo(config *Config) {
 			case "date":
 				f.GoType = "time.Time"
 				f.DbType = "DATETIME"
-				f.ReactType = "DateInput"
+				f.ReactType = "DateTimeInput"
 				if false == config.Imports["time"] {
 					config.Imports["time"] = true
 				}
@@ -319,6 +333,11 @@ func ymlToGo(config *Config) {
 				f.GoType = "string"
 				f.DbType = "VARCHAR(255)"
 				f.ReactType = "TextInput"
+				break
+			case "bool":
+				f.GoType = "bool"
+				f.DbType = "BOOLEAN"
+				f.ReactType = "BooleanInput"
 				break
 			// todo: Many To One Relation
 			case "rel":
@@ -351,42 +370,5 @@ func ymlToGo(config *Config) {
 			vo.Fields = append(vo.Fields, f)
 		}
 		config.RelationsGo = append(config.RelationsGo, vo)
-	}
-
-	// FOR ver 2.0
-	for voName, voFields := range config.Vo {
-		vo := Model{Name: voName}
-		for key, tp := range voFields {
-			f := Field{Name: key, Type: tp}
-			switch tp {
-			case "date":
-				f.GoType = "time.Time"
-				f.DbType = "DATETIME"
-				if false == config.Imports["time"] {
-					config.Imports["time"] = true
-				}
-				break
-			case "text":
-				f.GoType = "string"
-				f.DbType = "LONGTEXT"
-				break
-			case "float":
-				f.GoType = "float64"
-				f.DbType = "DECIMAL"
-				break
-			case "int":
-				f.GoType = "int"
-				f.DbType = "INT(11)"
-				break
-			case "string":
-				f.GoType = "string"
-				f.DbType = "VARCHAR(255)"
-				break
-			default:
-				f.GoType = tp
-			}
-			vo.Fields = append(vo.Fields, f)
-		}
-		config.VoGo = append(config.VoGo, vo)
 	}
 }

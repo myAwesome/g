@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Create, SimpleForm, TextInput, DateTimeInput, DateInput,  ReferenceInput, SelectInput, BooleanInput } from 'react-admin';
+import { Edit, SimpleForm, TextInput, DateTimeInput, DateInput,  ReferenceInput, SelectInput, BooleanInput } from 'react-admin';
 
-export const Create{{.Name|snakeToCamel}} = (props) => (
-    <Create {...props}>
+export const Edit{{.Name|snakeToCamel}} = (props) => (
+    <Edit {...props}>
         <SimpleForm>
         {{range .Fields}} {{ if not .IsId }} {{ if not .IsRelation }}
                 <{{.ReactType}} source="{{.Name|toUrl}}"/>{{end}}{{end}}
@@ -13,5 +13,5 @@ export const Create{{.Name|snakeToCamel}} = (props) => (
             {{end}}
         {{end}}
         </SimpleForm>
-    </Create>
+    </Edit>
 );

@@ -1,18 +1,24 @@
-all_types:
-  bool: bool
-  int: int
-  float: float
-  string: string
-  text: text
-  date: date
-  obj: json
-  relation: relation
-
 models:
-  model_name:
-    field_name: field_type
-    relation_name: '@model_name'
-    vo_field_name: '#value_object_name'
-value_objects:
-  value_object_name:
-    field_name: field_type
+  student:
+    id:         int
+    name:       string
+  discipline:
+    id:         int
+    name:       string
+  lesson:
+    id:         int
+    name:       string
+    date:       date
+    discipline: rel
+  student_has_lessons:
+    id:         int
+    student:    rel
+    lesson:     rel
+env:
+  project: classroom
+  db_port: 3306
+  db_user: vova
+  db_pass: vova
+  db_name: classroom_hash
+  server_port: 8881
+
