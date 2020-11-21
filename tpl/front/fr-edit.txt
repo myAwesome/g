@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Edit, SimpleForm, TextInput, DateTimeInput, DateInput,  ReferenceInput, SelectInput, BooleanInput } from 'react-admin';
+import { Edit, SimpleForm, TextInput, DateTimeInput, DateInput,  ReferenceInput, SelectInput, BooleanInput, RichTextInput } from 'react-admin';
 
 export const Edit{{.Name|snakeToCamel}} = (props) => (
     <Edit {...props}>

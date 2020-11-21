@@ -1,19 +1,16 @@
 models:
-  discipline:
+  day_v1:
     id:         int
-    name:       string
-  lesson:
-    id:         int
-    name:       string
-    control:    bool
     date:       date
-    discipline: rel
-
+    morn:       text
+    middle:     text
+    supper:     text
+    addition:   text
 env:
-  project: classroom
+  project: day_v1
   db_port: 3306
   db_user: vova
   db_pass: vova
-  db_name: classroom_hash
+  db_name: day_v1
   server_port: 8881
 

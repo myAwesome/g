@@ -317,7 +317,7 @@ func ymlToGo(config *Config) {
 			case "text":
 				f.GoType = "string"
 				f.DbType = "LONGTEXT"
-				f.ReactType = "RichTextInput"
+				f.ReactType = "TextInput"
 				break
 			case "float":
 				f.GoType = "float64"

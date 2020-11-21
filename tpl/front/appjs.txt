@@ -10,7 +10,7 @@ const dataProvider = jsonServerProvider('http://localhost:{{.Env.Server_Port}}')
 const App = () => (
 <Admin dataProvider={dataProvider}>
 {{range .ModelsGo}}
-    <Resource name="{{.Name}}"     list={ListGuesser} show={ShowGuesser} edit={EditGuesser} create={Create{{.Name|snakeToCamel}}}  />
+    <Resource name="{{.Name|toUrl}}" list={ListGuesser} show={ShowGuesser} edit={EditGuesser} create={Create{{.Name|snakeToCamel}}}  />
 {{end}}
 
 </Admin>

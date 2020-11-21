@@ -4,6 +4,9 @@ mysql -uvova -pvova < sql.sql &&
 go build server.go &&
 cd ./../front &&
 yarn install &&
-yarn start
+yarn build &&
+cd ./../back &&
+./server
+
 
 
