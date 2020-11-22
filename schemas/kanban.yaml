@@ -1,0 +1,23 @@
+models:
+    project:
+        id:          int
+        name:        text
+        description: text
+        priority:    int
+    task:
+        id:          int
+        title:       text
+        description: text
+        status:      text
+        created_at:  date
+        project:     rel
+        priority:    int
+
+env:
+    project: kanban
+    db_port: 3306
+    db_user: vova
+    db_pass: vova
+    db_name: kanban_v1
+    server_port: 8805
+

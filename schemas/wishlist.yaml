@@ -1,0 +1,17 @@
+models:
+    wish:
+        id:          int
+        created_at:  date
+        name:        text
+        description: text
+        price_from:  int
+        price_to:    int
+        picture:     text
+env:
+    project: wishlist
+    db_port: 3306
+    db_user: vova
+    db_pass: vova
+    db_name: wishlist_v1
+    server_port: 8803
+

@@ -1,0 +1,30 @@
+models:
+    post:
+        id:          int
+        date:        date
+        body:        text
+    comment:
+        id:          int
+        created:     date
+        body:        text
+        post:        rel
+    label:
+        id:          int
+        name:        text
+    period:
+        id:          int
+        name:       text
+        start:      date
+        end:        date
+    post_has_label:
+        id:          int
+        post:        rel
+        label:       rel
+env:
+    project: diary
+    db_port: 3306
+    db_user: vova
+    db_pass: vova
+    db_name: diary_v1
+    server_port: 8804
+

@@ -1,0 +1,46 @@
+models:
+    player:
+        id:         int
+        name:       string
+        position:   string
+        age:        int
+        team:       rel
+    team:
+        id:         int
+        name:       string
+        city:       rel
+    city:
+        id:         int
+        name:       string
+    match:
+        id:         int
+        round:      int
+        date:       date
+        team1:      rel
+        team2:      rel
+        team1_r:    int
+        team2_r:    int
+    goal:
+        id:         int
+        match:      rel
+        minute:     int
+        player:     rel
+        is_auto:    bool
+        is_penalty: bool
+    player_in_match:
+        id:         int
+        match:      rel
+        player:     rel
+        team:       rel
+
+
+
+
+env:
+    project: ligue
+    db_port: 3306
+    db_user: vova
+    db_pass: vova
+    db_name: ligue_v1
+    server_port: 8809
+

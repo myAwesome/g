@@ -1,0 +1,18 @@
+models:
+    transaction:
+        id:          int
+        date:        date
+        amount:      int
+        description: text
+        category:    rel
+    category:
+        id:          int
+        name:        text
+env:
+    project: expenses
+    db_port: 3306
+    db_user: vova
+    db_pass: vova
+    db_name: expenses_v1
+    server_port: 8802
+

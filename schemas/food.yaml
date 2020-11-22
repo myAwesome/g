@@ -1,0 +1,16 @@
+models:
+    day_v1:
+        id:         int
+        date:       date
+        morn:       text
+        middle:     text
+        supper:     text
+        addition:   text
+env:
+    project: day_v1
+    db_port: 3306
+    db_user: vova
+    db_pass: vova
+    db_name: day_v1
+    server_port: 8800
+

@@ -1,0 +1,19 @@
+models:
+    world:
+        id:         int
+        eng:        string
+        rus:        string
+        done:       bool
+    repeat:
+        id:         int
+        date:       date
+        world:      rel
+
+env:
+    project: eng_dic
+    db_port: 3306
+    db_user: vova
+    db_pass: vova
+    db_name: eng_dic
+    server_port: 8808
+
