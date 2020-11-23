@@ -1,0 +1,26 @@
+models:
+  brand:
+    id:         int
+    name:       string
+  style:
+    id:         int
+    name:       string
+  beer:
+    id:         int
+    name:       string
+    abv:        float
+    brand:      rel
+    style:      rel
+  review:
+    id:         int
+    description: string
+    rank:       int
+    beer:       rel
+env:
+  project: beer_review
+  db_port: 3306
+  db_user: vova
+  db_pass: vova
+  db_name: beer_review
+  server_port: 8807
+

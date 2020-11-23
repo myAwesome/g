@@ -1,5 +1,6 @@
 ISSUES:
  dbl relations - match has 2 players
+ ENUM
 
 ten demo projects - ideas
 - food diary
@@ -11,16 +12,15 @@ ten demo projects - ideas
 - обзоры на пиво
 - запоминание англ слов
 
-- перша ліга + бомбардири
-
 - простой намнам
 - жоб хелпер
 
 fix:
-- клуб манагер
-
+- клуб манагер (dbl rel)
+- перша ліга + бомбардири  (dbl rel)
 
 3  версії 2.0
    schema validation
-   VO залишимо для
+
+
 
