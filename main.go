@@ -106,11 +106,27 @@ func main() {
 		"count":        count,
 	}
 
+	// todo Back
 	fmt.Println(" ")
 	fmt.Println("BACK ...")
 	fmt.Println(" ")
 
 	err = os.Mkdir("./app", 0750)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("docker-compose generating...")
+	dcTemplt, err := template.New("docker-compose.txt").Funcs(funcMap).ParseFiles("tpl/docker-compose.txt")
+	if err != nil {
+		panic(err)
+	}
+
+	dcFile, err := os.Create("./app/docker-compose.yml")
+	if err != nil {
+		panic(err)
+	}
+	err = dcTemplt.ExecuteTemplate(dcFile, "docker-compose.txt", nil)
 	if err != nil {
 		panic(err)
 	}
@@ -186,6 +202,14 @@ func main() {
 		panic(err)
 	}
 
+	// Dockerfile
+	fmt.Println("Dockerfile generating...")
+	_, err = os.Create(backFolderName + "/Dockerfile")
+	if err != nil {
+		panic(err)
+	}
+
+	// todo FRONT
 	fmt.Println(" ")
 	fmt.Println("FRONT ...")
 	fmt.Println(" ")
@@ -296,6 +320,14 @@ func main() {
 			panic(err)
 		}
 	}
+
+	// Dockerfile
+	fmt.Println("Dockerfile generating...")
+	_, err = os.Create(frontFolderName + "/Dockerfile")
+	if err != nil {
+		panic(err)
+	}
+
 }
 
 func ymlToGo(config *Config) {

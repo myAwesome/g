@@ -1,0 +1,28 @@
+version: '3'
+services:
+  mysql:
+    image: "mysql:5.7"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: "${DB_NAME}"
+      MYSQL_USER:     "${DB_USER}"
+      MYSQL_PASSWORD: "${DB_PASS}"
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    tty: true
+    volumes:
+      - "./db:/var/lib/mysql:cached"
+  front:
+    build:
+      context: front
+    ports:
+      - "80:80"
+      - "443:443"
+  back:
+    build:
+      context: back
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    restart: always
+    depends_on:
+      - mysql
