@@ -1,0 +1,36 @@
+models:
+  user:
+    id:         int
+    name:       string
+    birthday:   date
+    gender:     string
+  place:
+    id: int
+    name: string
+    category: rel
+    lat: float
+    lng: float
+  category:
+    id: int
+    name: string
+  activity:
+    id:    int
+    place: rel
+    date:  date
+    user:  rel
+    price: int
+    status:   string
+  subscriber:
+    id:       int
+    activity: rel
+    user:     rel
+    status:   string
+
+env:
+  project: namnam_v1
+  db_port: 3309
+  db_user: root
+  db_pass: root
+  db_name: namnam_v1
+  server_port: 8811
+
