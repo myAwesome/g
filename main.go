@@ -323,7 +323,17 @@ func main() {
 
 	// Dockerfile
 	fmt.Println("Dockerfile generating...")
-	_, err = os.Create(frontFolderName + "/Dockerfile")
+	frontDockerTmplt, err := template.New("dockerfile.txt").Funcs(funcMap).ParseFiles("tpl/front/dockerfile.txt")
+	if err != nil {
+		panic(err)
+	}
+
+	frontDocker, err := os.Create(frontFolderName + "/Dockerfile")
+	if err != nil {
+		panic(err)
+	}
+
+	err = frontDockerTmplt.ExecuteTemplate(frontDocker, "dockerfile.txt", nil)
 	if err != nil {
 		panic(err)
 	}

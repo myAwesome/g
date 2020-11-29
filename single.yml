@@ -1,5 +1,5 @@
 models:
-  day_v1:
+  day_v2:
     id:         int
     date:       date
     morn:       text
@@ -7,10 +7,10 @@ models:
     supper:     text
     addition:   text
 env:
-  project: day_v1
+  project: day_v2
   db_port: 3306
   db_user: vova
   db_pass: vova
-  db_name: day_v1
+  db_name: day_v2
   server_port: 8881
 
