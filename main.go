@@ -164,7 +164,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	envGeneralFile, err := os.Create("./app/.env")
+	if err != nil {
+		panic(err)
+	}
+
 	err = tmpltEnv.ExecuteTemplate(envFile, "env.txt", config.Env)
+	if err != nil {
+		panic(err)
+	}
+	err = tmpltEnv.ExecuteTemplate(envGeneralFile, "env.txt", config.Env)
 	if err != nil {
 		panic(err)
 	}
@@ -203,8 +213,16 @@ func main() {
 	}
 
 	// Dockerfile
-	fmt.Println("Dockerfile generating...")
-	_, err = os.Create(backFolderName + "/Dockerfile")
+	fmt.Println("Back Dockerfile generating...")
+	backDockerTmplt, err := template.New("dockerfileServer.txt").Funcs(funcMap).ParseFiles("tpl/dockerfileServer.txt")
+	if err != nil {
+		panic(err)
+	}
+	backDocker, err := os.Create(backFolderName + "/Dockerfile")
+	if err != nil {
+		panic(err)
+	}
+	err = backDockerTmplt.ExecuteTemplate(backDocker, "dockerfileServer.txt", nil)
 	if err != nil {
 		panic(err)
 	}
