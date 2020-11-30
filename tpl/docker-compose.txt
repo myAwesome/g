@@ -12,6 +12,7 @@ services:
     tty: true
     volumes:
       - "./db:/var/lib/mysql:cached"
+    restart: always
   front:
     build:
       context: front
@@ -24,3 +25,4 @@ services:
       - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on:
       - mysql
+    restart: always

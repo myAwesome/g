@@ -8,9 +8,8 @@ models:
     addition:   text
 env:
   project: day_v2
-  db_port: 3306
-  db_user: vova
-  db_pass: vova
+  db_port: 3309
+  db_user: root
+  db_pass: root
   db_name: day_v2
   server_port: 8881
-

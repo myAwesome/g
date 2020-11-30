@@ -179,6 +179,7 @@ func main() {
 		panic(err)
 	}
 
+	// todo: root dir SQL
 	// SQL
 	fmt.Println("sql generating...")
 	tmpltSql, err := template.New("sql.txt").Funcs(funcMap).ParseFiles("tpl/sql.txt")
@@ -186,7 +187,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	sqlFile, err := os.Create(backFolderName + "/sql.sql")
+	sqlFile, err := os.Create("./app/sql.sql")
 	if err != nil {
 		panic(err)
 	}
