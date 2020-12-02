@@ -106,9 +106,9 @@ func main() {
 		"count":        count,
 	}
 
-	// todo Back
+	// todo root
 	fmt.Println(" ")
-	fmt.Println("BACK ...")
+	fmt.Println("Root ...")
 	fmt.Println(" ")
 
 	err = os.Mkdir("./app", 0750)
@@ -130,6 +130,27 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	// SQL
+	fmt.Println("sql generating...")
+	tmpltSql, err := template.New("sql.txt").Funcs(funcMap).ParseFiles("tpl/sql.txt")
+
+	if err != nil {
+		panic(err)
+	}
+	sqlFile, err := os.Create("./app/sql.sql")
+	if err != nil {
+		panic(err)
+	}
+	err = tmpltSql.ExecuteTemplate(sqlFile, "sql.txt", config)
+	if err != nil {
+		panic(err)
+	}
+
+	// todo back
+	fmt.Println(" ")
+	fmt.Println("back ...")
+	fmt.Println(" ")
 
 	backFolderName := "./app/back"
 	err = os.Mkdir(backFolderName, 0750)
@@ -175,23 +196,6 @@ func main() {
 		panic(err)
 	}
 	err = tmpltEnv.ExecuteTemplate(envGeneralFile, "env.txt", config.Env)
-	if err != nil {
-		panic(err)
-	}
-
-	// todo: root dir SQL
-	// SQL
-	fmt.Println("sql generating...")
-	tmpltSql, err := template.New("sql.txt").Funcs(funcMap).ParseFiles("tpl/sql.txt")
-
-	if err != nil {
-		panic(err)
-	}
-	sqlFile, err := os.Create("./app/sql.sql")
-	if err != nil {
-		panic(err)
-	}
-	err = tmpltSql.ExecuteTemplate(sqlFile, "sql.txt", config)
 	if err != nil {
 		panic(err)
 	}

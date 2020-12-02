@@ -1,15 +1,24 @@
-models:
-  day_v2:
-    id:         int
-    date:       date
-    morn:       text
-    middle:     text
-    supper:     text
-    addition:   text
 env:
-  project: day_v2
-  db_port: 3309
-  db_user: root
-  db_pass: root
-  db_name: day_v2
-  server_port: 8881
+  project: club_managmement
+  db_port: 3306
+  db_user: vova
+  db_pass: vova
+  db_name: club_managmement_v1
+  server_port: 8806
+models:
+  user:
+    id: int
+    firstname: string
+    lastname: string
+    pasword: string
+  player:
+    id: int
+    age: int
+    right_hand: bool
+    user: rel
+  match:
+    id: int
+    date: date
+    result: string
+    player1: rel_player
+    player2: rel_player

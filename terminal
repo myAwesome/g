@@ -1,9 +1,11 @@
 go run main.go &&
+chmod 0777 -R app &&
 cd ./app &&
 docker-compose up -d --build &&
-docker-compose ps
-
-# docker exec -i app_mysql_1 mysql -uroot -proot -P3306 < sql.sql
+docker-compose ps &&
+pwd &&
+sleep 20 &&
+docker exec -i app_mysql_1 mysql -uroot -proot < sql.sql
 
 
 
