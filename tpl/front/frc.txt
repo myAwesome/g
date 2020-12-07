@@ -7,7 +7,7 @@ export const Create{{.Name|snakeToCamel}} = (props) => (
         {{range .Fields}} {{ if not .IsId }} {{ if not .IsRelation }}
                 <{{.ReactType}} source="{{.Name}}"/>{{end}}{{end}}
             {{ if .IsRelation }}
-            <ReferenceInput label="{{.Name}}" source="{{.Name}}" reference="{{.Name}}" >
+            <ReferenceInput label="{{.Name}}" source="{{.Name}}" reference="{{.Relation}}" >
                 <SelectInput optionText="name" />
             </ReferenceInput>
             {{end}}

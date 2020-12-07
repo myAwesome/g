@@ -47,6 +47,7 @@ type Field struct {
 
 	IsId       bool
 	IsRelation bool
+	Relation   string
 }
 
 var link = regexp.MustCompile("(^[A-Za-z])|_([A-Za-z])")
@@ -370,49 +371,57 @@ func ymlToGo(config *Config) {
 			f := Field{Name: key, Type: tp}
 			f.IsId = key == "id"
 			f.IsRelation = false
-			switch tp {
-			case "date":
-				f.GoType = "time.Time"
-				f.DbType = "DATETIME"
-				f.ReactType = "DateTimeInput"
-				if false == config.Imports["time"] {
-					config.Imports["time"] = true
+			if strings.HasPrefix(tp, "rel_") {
+				f.GoType = "int"
+				f.IsRelation = true
+				f.DbType = "INT(11)"
+				f.Relation = tp[4:]
+			} else {
+				switch tp {
+				case "date":
+					f.GoType = "time.Time"
+					f.DbType = "DATETIME"
+					f.ReactType = "DateTimeInput"
+					if false == config.Imports["time"] {
+						config.Imports["time"] = true
+					}
+					break
+				case "text":
+					f.GoType = "string"
+					f.DbType = "LONGTEXT"
+					f.ReactType = "TextInput"
+					break
+				case "float":
+					f.GoType = "float64"
+					f.DbType = "DECIMAL"
+					f.ReactType = "NumberInput"
+					break
+				case "int":
+					f.GoType = "int"
+					f.DbType = "INT(11)"
+					f.ReactType = "NumberInput"
+					break
+				case "string":
+					f.GoType = "string"
+					f.DbType = "VARCHAR(255)"
+					f.ReactType = "TextInput"
+					break
+				case "bool":
+					f.GoType = "bool"
+					f.DbType = "BOOLEAN"
+					f.ReactType = "BooleanInput"
+					break
+				// todo: Many To One Relation
+				case "rel":
+					f.GoType = "int"
+					f.IsRelation = true
+					f.DbType = "INT(11)"
+					f.Relation = key
+					break
+				default:
+					f.IsRelation = true
+					f.GoType = tp
 				}
-				break
-			case "text":
-				f.GoType = "string"
-				f.DbType = "LONGTEXT"
-				f.ReactType = "TextInput"
-				break
-			case "float":
-				f.GoType = "float64"
-				f.DbType = "DECIMAL"
-				f.ReactType = "NumberInput"
-				break
-			case "int":
-				f.GoType = "int"
-				f.DbType = "INT(11)"
-				f.ReactType = "NumberInput"
-				break
-			case "string":
-				f.GoType = "string"
-				f.DbType = "VARCHAR(255)"
-				f.ReactType = "TextInput"
-				break
-			case "bool":
-				f.GoType = "bool"
-				f.DbType = "BOOLEAN"
-				f.ReactType = "BooleanInput"
-				break
-			// todo: Many To One Relation
-			case "rel":
-				f.GoType = "int"
-				f.IsRelation = true
-				f.DbType = "INT(11)"
-				break
-			default:
-				f.IsRelation = true
-				f.GoType = tp
 			}
 			m.Fields = append(m.Fields, f)
 		}
@@ -420,7 +429,7 @@ func ymlToGo(config *Config) {
 	}
 
 	for relName, relFields := range config.Relations {
-		vo := Model{Name: relName}
+		relation := Model{Name: relName}
 		for key, tp := range relFields {
 			f := Field{Name: key, Type: tp}
 			for _, modelType := range config.ModelsGo {
@@ -432,8 +441,8 @@ func ymlToGo(config *Config) {
 					}
 				}
 			}
-			vo.Fields = append(vo.Fields, f)
+			relation.Fields = append(relation.Fields, f)
 		}
-		config.RelationsGo = append(config.RelationsGo, vo)
+		config.RelationsGo = append(config.RelationsGo, relation)
 	}
 }

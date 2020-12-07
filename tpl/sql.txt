@@ -1,6 +1,7 @@
 {{$schema := .Env.Db_Name }}CREATE DATABASE IF NOT EXISTS `{{$schema}}`;{{range .ModelsGo}}{{$table := .Name }}
 CREATE TABLE `{{$schema}}`.`{{$table}}` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,{{range .Fields}}{{ if not .IsId }}`{{.Name}}` {{.DbType}} DEFAULT NULL,{{end}}
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  {{range .Fields}}{{ if not .IsId }}`{{.Name}}` {{.DbType}} DEFAULT NULL,{{end}}
   {{end}} PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;{{end}}{{range .RelationsGo}}{{$relationTableName := .Name }}
 CREATE TABLE `{{$schema}}`.`{{.Name}}` (
@@ -12,5 +13,5 @@ CREATE TABLE `{{$schema}}`.`{{.Name}}` (
 {{range .ModelsGo}}{{$table := .Name }} {{range .Fields}} {{ if .IsRelation }}
 ALTER TABLE `{{$schema}}`.`{{$table}}` ADD INDEX `fk_{{$table}}_{{.Name}}_idx` (`{{.Name}}` ASC);
 ALTER TABLE `{{$schema}}`.`{{$table}}` ADD CONSTRAINT `fk_{{$table}}_{{.Name}}` FOREIGN KEY (`{{.Name}}`)
-REFERENCES `{{$schema}}`.`{{.Name}}` (`id`) ON DELETE NO ACTION   ON UPDATE NO ACTION;
+REFERENCES `{{$schema}}`.`{{.Relation}}` (`id`) ON DELETE NO ACTION   ON UPDATE NO ACTION;
 {{end}} {{end}} {{end}}

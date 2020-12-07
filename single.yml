@@ -1,24 +1,21 @@
-env:
-  project: club_managmement
-  db_port: 3306
-  db_user: vova
-  db_pass: vova
-  db_name: club_managmement_v1
-  server_port: 8806
 models:
-  user:
-    id: int
-    firstname: string
-    lastname: string
-    pasword: string
+  place:
+    id:         int
+    name:       string
   player:
-    id: int
-    age: int
-    right_hand: bool
-    user: rel
-  match:
-    id: int
-    date: date
-    result: string
-    player1: rel_player
-    player2: rel_player
+    id:         int
+    name:       string
+  game:
+    id:         int
+    place:      rel
+    player1:    rel_player
+    player2:    rel_player
+    result:     string
+env:
+  project: develop_v0712
+  db_port: 3308
+  db_user: root
+  db_pass: root
+  db_name: develop_v0712
+  server_port: 8800
+
