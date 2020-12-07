@@ -1,3 +1,10 @@
+env:
+    project: ligue
+    db_port: 3306
+    db_user: vova
+    db_pass: vova
+    db_name: ligue_v0712
+    server_port: 8809
 models:
     player:
         id:         int
@@ -16,8 +23,8 @@ models:
         id:         int
         round:      int
         date:       date
-        team1:      rel
-        team2:      rel
+        team1:      rel_team
+        team2:      rel_team
         team1_r:    int
         team2_r:    int
     goal:
@@ -32,15 +39,3 @@ models:
         match:      rel
         player:     rel
         team:       rel
-
-
-
-
-env:
-    project: ligue
-    db_port: 3306
-    db_user: vova
-    db_pass: vova
-    db_name: ligue_v1
-    server_port: 8809
-

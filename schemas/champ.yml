@@ -3,84 +3,72 @@ env:
   db_port: 3306
   db_user: vova
   db_pass: vova
-  db_name: club_managmement_v1
+  db_name: club_managmement_v0712
   server_port: 8806
 models:
   user:
-    id:         int
-    firstname:  string
-    lastname:   string
-    pasword:    string
+    id: int
+    firstname: string
+    lastname: string
+    pasword: string
   player:
-    id:         int
-    age:        int
+    id: int
+    age: int
     right_hand: bool
-    user:       rel
+    user: rel
   championat:
-    id:           int
-    title:        string
-    type:         string
-    start_at:     date
-    end_at:       date
-    description:  text
-    club:         rel
-    courts:       rel
+    id: int
+    title: string
+    type: string
+    start_at: date
+    end_at: date
+    description: text
+    club: rel
+    court: rel
   championat_has_player:
-    id:         int
-    seed:       int
-    place:      int
-    points:     int
+    id: int
+    seed: int
+    place: int
+    points: int
     championat: rel
-    player:     rel
+    player: rel
   club:
-    id:           int
-    name:         string
-    description:  text
-    championats:  '[]Championat'
-    players:      '[]Player'
-    ranking:      '[]Ranking'
-
+    id: int
+    name: string
+    description: text
   courts:
-    id:       int
-    name:     string
-    address:  string
-    surface:  string
+    id: int
+    name: string
+    address: string
+    surface: string
     lat: float
     lng: float
-
   draw:
-    id:           int
+    id: int
     name_or_type: string
-    capacity:     int
-    championat:   rel
-    players:      '[]Player'
-    matches:      '[]Match'
-
-  group:
-    id:         int
-    name:       string
-    capacity:   int
+    capacity: int
     championat: rel
-    players:    '[]Player'
-    matches:    '[]Match'
-
+  group:
+    id: int
+    name: string
+    capacity: int
+    championat: rel
   match:
-    id:               int
-    date:             date
-    drawRound:        int
-    drawRoundNumber:  int
-    player1:          Player
-    player2:          Player
-    group:            rel
-    draw:             rel
+    id: int
+    date: date
+    drawRound: int
+    drawRoundNumber: int
+    player1: rel_player
+    player2: rel_player
+    group: rel
+    draw: rel
   set:
-    id:               int
-    number:           int
-    player_1_points:  int
-    player_2_points:  int
-    match:            rel
+    id: int
+    number: int
+    player_1_points: int
+    player_2_points: int
+    match: rel
   ranking:
-    id:   int
+    id: int
     name: string
     club: rel
-
