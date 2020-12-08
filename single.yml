@@ -1,21 +1,25 @@
 models:
-  place:
+  student:
     id:         int
     name:       string
-  player:
+  discipline:
     id:         int
     name:       string
-  game:
+  lesson:
     id:         int
-    place:      rel
-    player1:    rel_player
-    player2:    rel_player
-    result:     string
+    name:       string
+    4r:         string
+    date:       date
+    discipline: rel
+  student_has_lessons:
+    id:         int
+    student:    rel
+    lesson:     rel
 env:
-  project: develop_v0712
-  db_port: 3308
-  db_user: root
-  db_pass: root
-  db_name: develop_v0712
-  server_port: 8800
+  project: classroom
+  db_port: 3300
+  db_user: vova
+  db_pass: vova
+  db_name: classroom
+  server_port: 8882
 

@@ -8,8 +8,10 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
+	"time"
 )
 
 type Config struct {
@@ -98,8 +100,114 @@ func main() {
 		log.Fatalf("error: %v", err)
 	}
 
-	ymlToGo(&config)
+	ymlToGoConvert(&config)
+	ymlValidate(&config)
+	codeGenerate(&config)
+}
 
+func ymlValidate(config *Config) {
+	fmt.Println("yml Validation ...")
+
+	modelNames := make(map[string]bool)
+	for _, model := range config.ModelsGo {
+		modelNames[model.Name] = true
+	}
+
+	for _, model := range config.ModelsGo {
+		for _, field := range model.Fields {
+			if field.IsRelation && true != modelNames[field.Relation] {
+				fmt.Println("Relation not found: ", field.Relation)
+				fmt.Println("model: ", model.Name)
+			}
+		}
+	}
+}
+
+func ymlToGoConvert(config *Config) {
+	config.Env.Db_Name = config.Env.Db_Name + "_" + strconv.FormatInt(time.Now().Unix(), 10)
+
+	for modelName, modelFields := range config.Models {
+		m := Model{Name: modelName}
+		for key, tp := range modelFields {
+			f := Field{Name: key, Type: tp}
+			f.IsId = key == "id"
+			f.IsRelation = false
+			if strings.HasPrefix(tp, "rel_") {
+				f.GoType = "int"
+				f.IsRelation = true
+				f.DbType = "INT(11)"
+				f.Relation = tp[4:]
+			} else {
+				switch tp {
+				case "date":
+					f.GoType = "time.Time"
+					f.DbType = "DATETIME"
+					f.ReactType = "DateTimeInput"
+					if false == config.Imports["time"] {
+						config.Imports["time"] = true
+					}
+					break
+				case "text":
+					f.GoType = "string"
+					f.DbType = "LONGTEXT"
+					f.ReactType = "TextInput"
+					break
+				case "float":
+					f.GoType = "float64"
+					f.DbType = "DECIMAL"
+					f.ReactType = "NumberInput"
+					break
+				case "int":
+					f.GoType = "int"
+					f.DbType = "INT(11)"
+					f.ReactType = "NumberInput"
+					break
+				case "string":
+					f.GoType = "string"
+					f.DbType = "VARCHAR(255)"
+					f.ReactType = "TextInput"
+					break
+				case "bool":
+					f.GoType = "bool"
+					f.DbType = "BOOLEAN"
+					f.ReactType = "BooleanInput"
+					break
+				// todo: Many To One Relation
+				case "rel":
+					f.GoType = "int"
+					f.IsRelation = true
+					f.DbType = "INT(11)"
+					f.Relation = key
+					break
+				default:
+					panic("Error unsupported type: " + tp + " model: " + modelName + " field: " + key)
+				}
+			}
+			m.Fields = append(m.Fields, f)
+		}
+		config.ModelsGo = append(config.ModelsGo, m)
+	}
+
+	for relName, relFields := range config.Relations {
+		relation := Model{Name: relName}
+		for key, tp := range relFields {
+			f := Field{Name: key, Type: tp}
+			for _, modelType := range config.ModelsGo {
+				if key == modelType.Name {
+					for _, vvalue := range modelType.Fields {
+						if vvalue.Name == tp {
+							f = Field{Name: key, Type: tp, GoType: vvalue.GoType, DbType: vvalue.DbType}
+						}
+					}
+				}
+			}
+			relation.Fields = append(relation.Fields, f)
+		}
+		config.RelationsGo = append(config.RelationsGo, relation)
+	}
+}
+
+func codeGenerate(config *Config) {
 	funcMap := template.FuncMap{
 		"snakeToCamel": toCamelCase,
 		"toUrl":        toUrl,
@@ -112,7 +220,7 @@ func main() {
 	fmt.Println("Root ...")
 	fmt.Println(" ")
 
-	err = os.Mkdir("./app", 0750)
+	err := os.Mkdir("./app", 0750)
 	if err != nil {
 		panic(err)
 	}
@@ -360,89 +468,5 @@ func main() {
 	err = frontDockerTmplt.ExecuteTemplate(frontDocker, "dockerfile.txt", nil)
 	if err != nil {
 		panic(err)
-	}
-
-}
-
-func ymlToGo(config *Config) {
-	for modelName, modelFields := range config.Models {
-		m := Model{Name: modelName}
-		for key, tp := range modelFields {
-			f := Field{Name: key, Type: tp}
-			f.IsId = key == "id"
-			f.IsRelation = false
-			if strings.HasPrefix(tp, "rel_") {
-				f.GoType = "int"
-				f.IsRelation = true
-				f.DbType = "INT(11)"
-				f.Relation = tp[4:]
-			} else {
-				switch tp {
-				case "date":
-					f.GoType = "time.Time"
-					f.DbType = "DATETIME"
-					f.ReactType = "DateTimeInput"
-					if false == config.Imports["time"] {
-						config.Imports["time"] = true
-					}
-					break
-				case "text":
-					f.GoType = "string"
-					f.DbType = "LONGTEXT"
-					f.ReactType = "TextInput"
-					break
-				case "float":
-					f.GoType = "float64"
-					f.DbType = "DECIMAL"
-					f.ReactType = "NumberInput"
-					break
-				case "int":
-					f.GoType = "int"
-					f.DbType = "INT(11)"
-					f.ReactType = "NumberInput"
-					break
-				case "string":
-					f.GoType = "string"
-					f.DbType = "VARCHAR(255)"
-					f.ReactType = "TextInput"
-					break
-				case "bool":
-					f.GoType = "bool"
-					f.DbType = "BOOLEAN"
-					f.ReactType = "BooleanInput"
-					break
-				// todo: Many To One Relation
-				case "rel":
-					f.GoType = "int"
-					f.IsRelation = true
-					f.DbType = "INT(11)"
-					f.Relation = key
-					break
-				default:
-					f.IsRelation = true
-					f.GoType = tp
-				}
-			}
-			m.Fields = append(m.Fields, f)
-		}
-		config.ModelsGo = append(config.ModelsGo, m)
-	}
-
-	for relName, relFields := range config.Relations {
-		relation := Model{Name: relName}
-		for key, tp := range relFields {
-			f := Field{Name: key, Type: tp}
-			for _, modelType := range config.ModelsGo {
-				if key == modelType.Name {
-					for _, vvalue := range modelType.Fields {
-						if vvalue.Name == tp {
-							f = Field{Name: key, Type: tp, GoType: vvalue.GoType, DbType: vvalue.DbType}
-						}
-					}
-				}
-			}
-			relation.Fields = append(relation.Fields, f)
-		}
-		config.RelationsGo = append(config.RelationsGo, relation)
 	}
 }

@@ -6,6 +6,3 @@ docker-compose ps &&
 pwd &&
 sleep 20 &&
 docker exec -i app_mysql_1 mysql -uroot -proot < sql.sql
-
-
-

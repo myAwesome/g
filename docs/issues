@@ -1,6 +1,10 @@
 ISSUES:
+ - SCHEMA VALIDATION
  - ENUM
+ - name rel hardcode
 
+
+PROJECTS:
 ten demo projects - ideas
 - food diary
 - журнал відвідуваності
@@ -12,9 +16,8 @@ ten demo projects - ideas
 - запоминание англ слов
 - простой намнам
 - клуб манагер
+- перша ліга + бомбардири
 
-fix:
-- перша ліга + бомбардири  (dbl rel)
-
-3  версії 2.0
-   schema validation
+IDEAS
+ - db_name: club_[%time%]
+ - cloud based solution
