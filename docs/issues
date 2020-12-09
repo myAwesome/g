@@ -2,7 +2,7 @@ ISSUES:
  - SCHEMA VALIDATION
  - ENUM
  - name rel hardcode
-
+ @front_issue
 
 PROJECTS:
 ten demo projects - ideas
@@ -21,3 +21,21 @@ ten demo projects - ideas
 IDEAS
  - db_name: club_[%time%]
  - cloud based solution
+
+
+OPTIMISING BUILD
+ - remove front container
+ - remove back container
+
+
+ @front_issue
+ webpackHotDevClient.js:138 src/discipline/create.js
+   Line 2:41:   'DateTimeInput' is defined but never used   no-unused-vars
+   Line 2:56:   'DateInput' is defined but never used       no-unused-vars
+   Line 2:67:   'NumberInput' is defined but never used     no-unused-vars
+   Line 2:80:   'ReferenceInput' is defined but never used  no-unused-vars
+   Line 2:96:   'SelectInput' is defined but never used     no-unused-vars
+   Line 2:109:  'BooleanInput' is defined but never used    no-unused-vars
+   Line 2:123:  'RichTextInput' is defined but never used   no-unused-vars
+
+  DevClient.js:138
