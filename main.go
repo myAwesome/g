@@ -36,8 +36,9 @@ type Env struct {
 }
 
 type Model struct {
-	Name   string
-	Fields []Field
+	Name        string
+	Fields      []Field
+	ReactInputs map[string]bool
 }
 
 type Field struct {
@@ -124,10 +125,11 @@ func ymlValidate(config *Config) {
 }
 
 func ymlToGoConvert(config *Config) {
+	// todo: unique db here
 	config.Env.Db_Name = config.Env.Db_Name + "_" + strconv.FormatInt(time.Now().Unix(), 10)
-
 	for modelName, modelFields := range config.Models {
 		m := Model{Name: modelName}
+		m.ReactInputs = make(map[string]bool)
 		for key, tp := range modelFields {
 			f := Field{Name: key, Type: tp}
 			f.IsId = key == "id"
@@ -137,6 +139,12 @@ func ymlToGoConvert(config *Config) {
 				f.IsRelation = true
 				f.DbType = "INT(11)"
 				f.Relation = tp[4:]
+				if false == m.ReactInputs["ReferenceInput"] {
+					m.ReactInputs["ReferenceInput"] = true
+				}
+				if false == m.ReactInputs["SelectInput"] {
+					m.ReactInputs["SelectInput"] = true
+				}
 			} else {
 				switch tp {
 				case "date":
@@ -146,31 +154,49 @@ func ymlToGoConvert(config *Config) {
 					if false == config.Imports["time"] {
 						config.Imports["time"] = true
 					}
+					if false == m.ReactInputs["DateTimeInput"] {
+						m.ReactInputs["DateTimeInput"] = true
+					}
 					break
 				case "text":
 					f.GoType = "string"
 					f.DbType = "LONGTEXT"
 					f.ReactType = "TextInput"
+					if false == m.ReactInputs["TextInput"] {
+						m.ReactInputs["TextInput"] = true
+					}
 					break
 				case "float":
 					f.GoType = "float64"
 					f.DbType = "DECIMAL"
 					f.ReactType = "NumberInput"
+					if false == m.ReactInputs["NumberInput"] {
+						m.ReactInputs["NumberInput"] = true
+					}
 					break
 				case "int":
 					f.GoType = "int"
 					f.DbType = "INT(11)"
 					f.ReactType = "NumberInput"
+					if false == m.ReactInputs["NumberInput"] && key != "id" {
+						m.ReactInputs["NumberInput"] = true
+					}
 					break
 				case "string":
 					f.GoType = "string"
 					f.DbType = "VARCHAR(255)"
 					f.ReactType = "TextInput"
+					if false == m.ReactInputs["TextInput"] {
+						m.ReactInputs["TextInput"] = true
+					}
 					break
 				case "bool":
 					f.GoType = "bool"
 					f.DbType = "BOOLEAN"
 					f.ReactType = "BooleanInput"
+					if false == m.ReactInputs["BooleanInput"] {
+						m.ReactInputs["BooleanInput"] = true
+					}
 					break
 				// todo: Many To One Relation
 				case "rel":
@@ -178,6 +204,13 @@ func ymlToGoConvert(config *Config) {
 					f.IsRelation = true
 					f.DbType = "INT(11)"
 					f.Relation = key
+					f.ReactType = "ReferenceInput,SelectInput"
+					if false == m.ReactInputs["ReferenceInput"] {
+						m.ReactInputs["ReferenceInput"] = true
+					}
+					if false == m.ReactInputs["SelectInput"] {
+						m.ReactInputs["SelectInput"] = true
+					}
 					break
 				default:
 					panic("Error unsupported type: " + tp + " model: " + modelName + " field: " + key)
