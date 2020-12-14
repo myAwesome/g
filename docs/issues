@@ -2,20 +2,6 @@ ISSUES:
  - ENUM
  - name rel hardcode
 
-PROJECTS:
-ten demo projects - ideas
-- food diary
-- журнал відвідуваності
-- транзакції
-- вишлист
-- щоденник
-- таски/проекти
-- обзоры на пиво
-- запоминание англ слов
-- простой намнам
-- клуб манагер
-- перша ліга + бомбардири
-
 IDEAS
  - db_name: club_[%time%]
  - cloud based solution
