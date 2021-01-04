@@ -51,6 +51,9 @@ type Field struct {
 	IsId       bool
 	IsRelation bool
 	Relation   string
+
+	IsEnum     bool
+	EnumValues []string
 }
 
 var link = regexp.MustCompile("(^[A-Za-z])|_([A-Za-z])")
@@ -104,6 +107,7 @@ func main() {
 	ymlToGoConvert(&config)
 	ymlValidate(&config)
 	codeGenerate(&config)
+
 }
 
 func ymlValidate(config *Config) {
@@ -125,7 +129,7 @@ func ymlValidate(config *Config) {
 }
 
 func ymlToGoConvert(config *Config) {
-	// todo: unique db here
+	// todo: unique db here - ніпанятна
 	config.Env.Db_Name = config.Env.Db_Name + "_" + strconv.FormatInt(time.Now().Unix(), 10)
 	for modelName, modelFields := range config.Models {
 		m := Model{Name: modelName}
@@ -134,17 +138,26 @@ func ymlToGoConvert(config *Config) {
 			f := Field{Name: key, Type: tp}
 			f.IsId = key == "id"
 			f.IsRelation = false
-			if strings.HasPrefix(tp, "rel_") {
-				f.GoType = "int"
-				f.IsRelation = true
-				f.DbType = "INT(11)"
-				f.Relation = tp[4:]
-				if false == m.ReactInputs["ReferenceInput"] {
-					m.ReactInputs["ReferenceInput"] = true
+			if strings.HasPrefix(tp, "rel_") || strings.HasPrefix(tp, "enum_") {
+				if strings.HasPrefix(tp, "rel_") {
+					f.GoType = "int"
+					f.IsRelation = true
+					f.DbType = "INT(11)"
+					f.Relation = tp[4:]
+					if false == m.ReactInputs["ReferenceInput"] {
+						m.ReactInputs["ReferenceInput"] = true
+					}
+					if false == m.ReactInputs["SelectInput"] {
+						m.ReactInputs["SelectInput"] = true
+					}
+				} else {
+					f.GoType = "string"
+					f.IsEnum = true
+					f.DbType = "ENUM('" + strings.Replace(tp[5:], "_", "','", -1) + "')"
+					enumConfig := strings.Split(tp, "_")
+					f.EnumValues = enumConfig[1:]
 				}
-				if false == m.ReactInputs["SelectInput"] {
-					m.ReactInputs["SelectInput"] = true
-				}
+
 			} else {
 				switch tp {
 				case "date":

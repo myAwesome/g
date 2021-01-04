@@ -4,15 +4,15 @@ import jsonServerProvider from 'ra-data-json-server';
 
 {{range .ModelsGo}}
 import {Create{{.Name|snakeToCamel}}} from './{{.Name}}/create'
+import {Edit{{.Name|snakeToCamel}}} from './{{.Name}}/edit'
 {{end}}
 
 const dataProvider = jsonServerProvider('http://localhost:{{.Env.Server_Port}}');
 const App = () => (
 <Admin dataProvider={dataProvider}>
 {{range .ModelsGo}}
-    <Resource name="{{.Name|toUrl}}" list={ListGuesser} show={ShowGuesser} edit={EditGuesser} create={Create{{.Name|snakeToCamel}}}  />
+    <Resource name="{{.Name|toUrl}}" list={ListGuesser} show={ShowGuesser} edit={Edit{{.Name|snakeToCamel}}} create={Create{{.Name|snakeToCamel}}}  />
 {{end}}
-
 </Admin>
 );
 

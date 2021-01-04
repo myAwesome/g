@@ -3,15 +3,28 @@ import { Create,{{ range  $key, $val := .ReactInputs }}{{ $key }},{{end}} Simple
 
 export const Create{{.Name|snakeToCamel}} = (props) => (
     <Create {...props}>
-        <SimpleForm>
-        {{range .Fields}} {{ if not .IsId }} {{ if not .IsRelation }}
-                <{{.ReactType}} source="{{.Name}}"/>{{end}}{{end}}
-            {{ if .IsRelation }}
-            <ReferenceInput label="{{.Name}}" source="{{.Name}}" reference="{{.Relation}}" >
-                <SelectInput optionText="name" />
-            </ReferenceInput>
-            {{end}}
-        {{end}}
-        </SimpleForm>
+         <SimpleForm>
+                {{range .Fields}}
+                    {{ if not .IsId }}
+                        {{ if not .IsRelation }}
+                           {{ if not .IsEnum }}
+                                <{{.ReactType}} source="{{.Name|toUrl}}"/>
+                           {{end}}
+                        {{end}}
+                    {{end}}
+                    {{ if .IsRelation }}
+                        <ReferenceInput label="{{.Name}}" source="{{.Name}}" reference="{{.Name}}" >
+                            <SelectInput optionText="name" />
+                        </ReferenceInput>
+                    {{end}}
+                    {{ if .IsEnum }}
+                     <SelectInput source="{{.Name|toUrl}}" choices={[
+                        {{ range  $key, $val := .EnumValues }}
+                            { id: '{{$val}}', name: '{{$val|snakeToCamel}}' },
+                        {{end}}
+                    ]} />
+                    {{end}}
+                {{end}}
+                </SimpleForm>
     </Create>
 );

@@ -1,17 +1,15 @@
 ISSUES:
- - ENUM
-    - front
-    - sql
-
 
  - date and datetime
  - react name relation hardcoded now
- - unique field
+ - (sql) unique field
  - limit 10
+ - relation react note_category
 
 IDEAS
  - db_name: club_[%time%]
  - cloud based solution
+ - beautiful tpml -> to beautiful code
 
 OPTIMISING BUILD
  - remove front container
@@ -20,18 +18,4 @@ OPTIMISING BUILD
 
 
 
-
-enum
-
- ALTER TABLE `champ`.`championat`
- CHANGE COLUMN `type` `type` ENUM('male', 'female', 'undefined')
- CHARACTER SET 'utf8'
- COLLATE 'utf8_unicode_ci'
- NOT NULL ;
-
-
- <SelectInput source="gender" choices={[
-    { id: 'female', name: 'Female' },
-    { id: 'male', name: 'Male' },
-    { id: 'undef', name: 'Undef' },
-]} />
+go get -d -v ./... && go install -v ./... && go build -o server .

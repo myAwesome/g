@@ -4,12 +4,25 @@ import { Edit, {{ range  $key, $val := .ReactInputs }}{{ $key }}, {{end}} Simple
 export const Edit{{.Name|snakeToCamel}} = (props) => (
     <Edit {...props}>
         <SimpleForm>
-        {{range .Fields}} {{ if not .IsId }} {{ if not .IsRelation }}
-                <{{.ReactType}} source="{{.Name|toUrl}}"/>{{end}}{{end}}
+        {{range .Fields}}
+            {{ if not .IsId }}
+                {{ if not .IsRelation }}
+                   {{ if not .IsEnum }}
+                        <{{.ReactType}} source="{{.Name|toUrl}}"/>
+                   {{end}}
+                {{end}}
+            {{end}}
             {{ if .IsRelation }}
-            <ReferenceInput label="{{.Name}}" source="{{.Name}}" reference="{{.Name}}" >
-                <SelectInput optionText="name" />
-            </ReferenceInput>
+                <ReferenceInput label="{{.Name}}" source="{{.Name|snakeToCamel}}" reference="{{.Name|snakeToCamel}}" >
+                    <SelectInput optionText="name" />
+                </ReferenceInput>
+            {{end}}
+            {{ if .IsEnum }}
+             <SelectInput source="{{.Name|toUrl}}" choices={[
+                {{ range  $key, $val := .EnumValues }}
+                    { id: '{{$val}}', name: '{{$val|snakeToCamel}}' },
+                {{end}}
+            ]} />
             {{end}}
         {{end}}
         </SimpleForm>

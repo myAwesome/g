@@ -1,10 +1,11 @@
 models:
   note:
     id:                  int
-    note_category:       rel
+    note_cat:            rel
     body:                text
     created_at:          date
-  note_category:
+    season:              enum_spring_summer_fall_winter
+  note_cat:
     id:         int
     name:       string
 env:
