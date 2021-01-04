@@ -1,6 +1,13 @@
 ISSUES:
  - ENUM
- - name rel hardcode
+    - front
+    - sql
+
+
+ - date and datetime
+ - react name relation hardcoded now
+ - unique field
+ - limit 10
 
 IDEAS
  - db_name: club_[%time%]
@@ -9,3 +16,22 @@ IDEAS
 OPTIMISING BUILD
  - remove front container
  - remove back container
+
+
+
+
+
+enum
+
+ ALTER TABLE `champ`.`championat`
+ CHANGE COLUMN `type` `type` ENUM('male', 'female', 'undefined')
+ CHARACTER SET 'utf8'
+ COLLATE 'utf8_unicode_ci'
+ NOT NULL ;
+
+
+ <SelectInput source="gender" choices={[
+    { id: 'female', name: 'Female' },
+    { id: 'male', name: 'Male' },
+    { id: 'undef', name: 'Undef' },
+]} />

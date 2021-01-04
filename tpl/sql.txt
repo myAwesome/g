@@ -3,15 +3,16 @@ CREATE TABLE `{{$schema}}`.`{{$table}}` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   {{range .Fields}}{{ if not .IsId }}`{{.Name}}` {{.DbType}} DEFAULT NULL,{{end}}
   {{end}} PRIMARY KEY (`id`)
-) ENGINE=InnoDB;{{end}}{{range .RelationsGo}}{{$relationTableName := .Name }}
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;{{end}}{{range .RelationsGo}}{{$relationTableName := .Name }}
 CREATE TABLE `{{$schema}}`.`{{.Name}}` (
   {{range .Fields}}`{{.Name}}` {{.DbType}} NOT NULL,
   {{end}}{{range .Fields}}KEY `fk_{{$relationTableName}}_{{.Name}}` (`{{.Name}}`),
   {{end}}{{$countField := .Fields|count}}{{range $index, $field := .Fields}}
   CONSTRAINT `fk_{{$relationTableName}}_{{$field.Name}}` FOREIGN KEY (`{{$field.Name}}`) REFERENCES `{{$field.Name}}` (`{{$field.Type}}`) ON DELETE NO ACTION ON UPDATE NO ACTION{{if ne $index $countField }},{{end}}{{end}}
-) ENGINE=InnoDB;{{end}}
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;{{end}}
 {{range .ModelsGo}}{{$table := .Name }} {{range .Fields}} {{ if .IsRelation }}
 ALTER TABLE `{{$schema}}`.`{{$table}}` ADD INDEX `fk_{{$table}}_{{.Name}}_idx` (`{{.Name}}` ASC);
 ALTER TABLE `{{$schema}}`.`{{$table}}` ADD CONSTRAINT `fk_{{$table}}_{{.Name}}` FOREIGN KEY (`{{.Name}}`)
 REFERENCES `{{$schema}}`.`{{.Relation}}` (`id`) ON DELETE NO ACTION   ON UPDATE NO ACTION;
 {{end}} {{end}} {{end}}
+

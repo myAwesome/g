@@ -22,3 +22,6 @@ env:
   db_name: classroom_hash
   server_port: 8881
 
+
+  enum_male_female_undefined
+  rel_player

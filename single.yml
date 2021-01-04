@@ -1,25 +1,17 @@
 models:
-  student:
+  note:
+    id:                  int
+    note_category:       rel
+    body:                text
+    created_at:          date
+  note_category:
     id:         int
     name:       string
-  discipline:
-    id:         int
-    name:       string
-  lesson:
-    id:         int
-    name:       string
-    4r:         string
-    date:       date
-    discipline: rel
-  student_has_lessons:
-    id:         int
-    student:    rel
-    lesson:     rel
 env:
-  project: classroom
-  db_port: 3300
+  project: d_notes
+  db_port: 3303
   db_user: vova
   db_pass: vova
   db_name: classroom
-  server_port: 8882
+  server_port: 8883
 
