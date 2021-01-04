@@ -4,5 +4,9 @@ cd ./app &&
 docker-compose up -d --build &&
 docker-compose ps &&
 pwd &&
-sleep 20 &&
+cp node_modules.tar app/front/ &&
+cd app/front/ &&
+tar -xvf node_modules.tar &&
+cd ../ &&
+sleep 5 &&
 docker exec -i app_mysql_1 mysql -uroot -proot < sql.sql

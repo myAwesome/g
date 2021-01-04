@@ -13,11 +13,6 @@ services:
     volumes:
       - "./db:/var/lib/mysql:cached"
     restart: always
-  front:
-    build:
-      context: front
-    ports:
-      - "3001:3000"
   back:
     build:
       context: back
