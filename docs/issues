@@ -1,5 +1,4 @@
 ISSUES:
-
  - date and datetime
  - react name relation hardcoded now
  - (sql) unique field
@@ -10,6 +9,3 @@ IDEAS
  - db_name: club_[%time%]
  - cloud based solution
  - beautiful tpml -> to beautiful code
-
-OPTIMISING BUILD
- - remove back container
