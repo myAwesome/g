@@ -1,0 +1,5 @@
+pwd &&
+cd ./app &&
+docker-compose down &&
+cd ../ &&
+echo 'www'|sudo rm -r ./app
