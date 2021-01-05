@@ -1,18 +1,24 @@
 models:
-  note:
-    id:                  int
-    note_cat:            rel
-    body:                text
-    created_at:          date
-    season:              enum_spring_summer_fall_winter
-  note_cat:
+  student:
     id:         int
     name:       string
+  discipline:
+    id:         int
+    name:       string
+  lesson:
+    id:         int
+    name:       string
+    date:       date
+    discipline: rel
+  student_has_lessons:
+    id:         int
+    student:    rel
+    lesson:     rel
 env:
-  project: d_notes
-  db_port: 3303
+  project: classroom
+  db_port: 3309
   db_user: vova
   db_pass: vova
-  db_name: classroom
-  server_port: 8883
+  db_name: classroom_v1
+  server_port: 8801
 

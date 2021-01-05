@@ -1,6 +1,6 @@
 env:
   project: club_managmement
-  db_port: 3306
+  db_port: 3304
   db_user: vova
   db_pass: vova
   db_name: club_managmement_v0712

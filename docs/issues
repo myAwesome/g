@@ -12,10 +12,4 @@ IDEAS
  - beautiful tpml -> to beautiful code
 
 OPTIMISING BUILD
- - remove front container
  - remove back container
-
-
-
-
-go get -d -v ./... && go install -v ./... && go build -o server .
