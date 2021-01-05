@@ -10,5 +10,8 @@ tar -xvf node_modules.tar &&
 cd ../ &&
 sleep 15 &&
 docker exec -i app_mysql_1 mysql -uroot -proot < sql.sql &&
-cd front &&
-npm start
+cd back &&
+go get -d -v ./... && go install -v ./... && go build -o server . &&
+(./server &) &&
+cd ../front &&
+(npm start &)

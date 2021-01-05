@@ -41,12 +41,13 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	dbuser := os.Getenv("DB_USER")
-	dbpass := os.Getenv("DB_PASS")
+	dbuser := "root"
+	dbpass := "root"
 	dbname := os.Getenv("DB_NAME")
+    dbport := os.Getenv("DB_PORT")
 	serverport := os.Getenv("SERVER_PORT")
 
-	dbstr := fmt.Sprintf("%s:%s@tcp(mysql:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbuser, dbpass, dbname)
+	dbstr := fmt.Sprintf("%s:%s@tcp(localhost:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbuser, dbpass, dbport, dbname)
 
 	db, err := gorm.Open("mysql", dbstr)
 	if err != nil {
