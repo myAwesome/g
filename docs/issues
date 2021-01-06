@@ -1,12 +1,13 @@
 ISSUES:
- - react name relation hardcoded now
+ - docs
+ - tests
  - (sql) unique field
  - limit 10
+
  - relation react note_category
+ - relation react name hardcoded now
 
 IDEAS
  - db_name: club_[%time%]
  - cloud based solution
  - beautiful tpml -> to beautiful code
-
-tests!!!
