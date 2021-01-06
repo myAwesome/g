@@ -1,5 +1,4 @@
 ISSUES:
- - date and datetime
  - react name relation hardcoded now
  - (sql) unique field
  - limit 10
@@ -9,3 +8,5 @@ IDEAS
  - db_name: club_[%time%]
  - cloud based solution
  - beautiful tpml -> to beautiful code
+
+tests!!!

@@ -2,23 +2,17 @@ models:
   student:
     id:         int
     name:       string
-  discipline:
-    id:         int
-    name:       string
   lesson:
     id:         int
     name:       string
-    date:       date
-    discipline: rel
-  student_has_lessons:
-    id:         int
-    student:    rel
-    lesson:     rel
+    begin_at:   datetime
+    some_field: date
+
 env:
-  project: classroom
+  project: research
   db_port: 3309
   db_user: vova
   db_pass: vova
-  db_name: classroom_v1
+  db_name: research
   server_port: 8801
 

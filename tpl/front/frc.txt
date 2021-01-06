@@ -8,7 +8,7 @@ export const Create{{.Name|snakeToCamel}} = (props) => (
                     {{ if not .IsId }}
                         {{ if not .IsRelation }}
                            {{ if not .IsEnum }}
-                                <{{.ReactType}} source="{{.Name|toUrl}}"/>
+                                <{{.ReactType}} source="{{.Name}}"/>
                            {{end}}
                         {{end}}
                     {{end}}
@@ -18,7 +18,7 @@ export const Create{{.Name|snakeToCamel}} = (props) => (
                         </ReferenceInput>
                     {{end}}
                     {{ if .IsEnum }}
-                     <SelectInput source="{{.Name|toUrl}}" choices={[
+                     <SelectInput source="{{.Name}}" choices={[
                         {{ range  $key, $val := .EnumValues }}
                             { id: '{{$val}}', name: '{{$val|snakeToCamel}}' },
                         {{end}}

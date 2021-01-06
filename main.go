@@ -161,6 +161,14 @@ func ymlToGoConvert(config *Config) {
 			} else {
 				switch tp {
 				case "date":
+					f.GoType = "string"
+					f.DbType = "DATETIME"
+					f.ReactType = "DateInput"
+					if false == m.ReactInputs["DateInput"] {
+						m.ReactInputs["DateInput"] = true
+					}
+					break
+				case "datetime":
 					f.GoType = "time.Time"
 					f.DbType = "DATETIME"
 					f.ReactType = "DateTimeInput"
