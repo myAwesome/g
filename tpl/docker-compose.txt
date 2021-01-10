@@ -13,11 +13,3 @@ services:
     volumes:
       - "./db:/var/lib/mysql:cached"
     restart: always
-  back:
-    build:
-      context: back
-    ports:
-      - "${SERVER_PORT}:${SERVER_PORT}"
-    depends_on:
-      - mysql
-    restart: always
