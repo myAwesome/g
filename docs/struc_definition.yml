@@ -2,6 +2,7 @@ models:
   student:
     id:         int
     name:       string
+    gender:     enum_male_female_undefined
   discipline:
     id:         int
     name:       string
@@ -12,8 +13,8 @@ models:
     discipline: rel
   student_has_lessons:
     id:         int
-    student:    rel
-    lesson:     rel
+    student:    rel_student
+    lesson:     rel_lesson
 env:
   project: classroom
   db_port: 3306
@@ -22,6 +23,3 @@ env:
   db_name: classroom_hash
   server_port: 8881
 
-
-  enum_male_female_undefined
-  rel_player

@@ -129,7 +129,6 @@ func ymlValidate(config *Config) {
 }
 
 func ymlToGoConvert(config *Config) {
-	// todo: unique db here - ніпанятна
 	config.Env.Db_Name = config.Env.Db_Name + "_" + strconv.FormatInt(time.Now().Unix(), 10)
 	for modelName, modelFields := range config.Models {
 		m := Model{Name: modelName}
@@ -138,104 +137,101 @@ func ymlToGoConvert(config *Config) {
 			f := Field{Name: key, Type: tp}
 			f.IsId = key == "id"
 			f.IsRelation = false
-			if strings.HasPrefix(tp, "rel_") || strings.HasPrefix(tp, "enum_") {
-				if strings.HasPrefix(tp, "rel_") {
-					f.GoType = "int"
-					f.IsRelation = true
-					f.DbType = "INT(11)"
-					f.Relation = tp[4:]
-					if false == m.ReactInputs["ReferenceInput"] {
-						m.ReactInputs["ReferenceInput"] = true
-					}
-					if false == m.ReactInputs["SelectInput"] {
-						m.ReactInputs["SelectInput"] = true
-					}
-				} else {
-					f.GoType = "string"
-					f.IsEnum = true
-					f.DbType = "ENUM('" + strings.Replace(tp[5:], "_", "','", -1) + "')"
-					enumConfig := strings.Split(tp, "_")
-					f.EnumValues = enumConfig[1:]
+			switch true {
+			case strings.HasPrefix(tp, "enum_"):
+				f.GoType = "string"
+				f.IsEnum = true
+				f.DbType = "ENUM('" + strings.Replace(tp[5:], "_", "','", -1) + "')"
+				enumConfig := strings.Split(tp, "_")
+				f.EnumValues = enumConfig[1:]
+				break
+			case strings.HasPrefix(tp, "rel_"):
+				f.GoType = "int"
+				f.IsRelation = true
+				f.DbType = "INT(11)"
+				f.Relation = tp[4:]
+				if false == m.ReactInputs["ReferenceInput"] {
+					m.ReactInputs["ReferenceInput"] = true
 				}
-
-			} else {
-				switch tp {
-				case "date":
-					f.GoType = "string"
-					f.DbType = "DATETIME"
-					f.ReactType = "DateInput"
-					if false == m.ReactInputs["DateInput"] {
-						m.ReactInputs["DateInput"] = true
-					}
-					break
-				case "datetime":
-					f.GoType = "time.Time"
-					f.DbType = "DATETIME"
-					f.ReactType = "DateTimeInput"
-					if false == config.Imports["time"] {
-						config.Imports["time"] = true
-					}
-					if false == m.ReactInputs["DateTimeInput"] {
-						m.ReactInputs["DateTimeInput"] = true
-					}
-					break
-				case "text":
-					f.GoType = "string"
-					f.DbType = "LONGTEXT"
-					f.ReactType = "TextInput"
-					if false == m.ReactInputs["TextInput"] {
-						m.ReactInputs["TextInput"] = true
-					}
-					break
-				case "float":
-					f.GoType = "float64"
-					f.DbType = "DECIMAL"
-					f.ReactType = "NumberInput"
-					if false == m.ReactInputs["NumberInput"] {
-						m.ReactInputs["NumberInput"] = true
-					}
-					break
-				case "int":
-					f.GoType = "int"
-					f.DbType = "INT(11)"
-					f.ReactType = "NumberInput"
-					if false == m.ReactInputs["NumberInput"] && key != "id" {
-						m.ReactInputs["NumberInput"] = true
-					}
-					break
-				case "string":
-					f.GoType = "string"
-					f.DbType = "VARCHAR(255)"
-					f.ReactType = "TextInput"
-					if false == m.ReactInputs["TextInput"] {
-						m.ReactInputs["TextInput"] = true
-					}
-					break
-				case "bool":
-					f.GoType = "bool"
-					f.DbType = "BOOLEAN"
-					f.ReactType = "BooleanInput"
-					if false == m.ReactInputs["BooleanInput"] {
-						m.ReactInputs["BooleanInput"] = true
-					}
-					break
-				// todo: Many To One Relation
-				case "rel":
-					f.GoType = "int"
-					f.IsRelation = true
-					f.DbType = "INT(11)"
-					f.Relation = key
-					f.ReactType = "ReferenceInput,SelectInput"
-					if false == m.ReactInputs["ReferenceInput"] {
-						m.ReactInputs["ReferenceInput"] = true
-					}
-					if false == m.ReactInputs["SelectInput"] {
-						m.ReactInputs["SelectInput"] = true
-					}
-					break
-				default:
-					panic("Error unsupported type: " + tp + " model: " + modelName + " field: " + key)
+				if false == m.ReactInputs["SelectInput"] {
+					m.ReactInputs["SelectInput"] = true
 				}
+				break
+			case tp == "date":
+				f.GoType = "string"
+				f.DbType = "DATETIME"
+				f.ReactType = "DateInput"
+				if false == m.ReactInputs["DateInput"] {
+					m.ReactInputs["DateInput"] = true
+				}
+				break
+			case tp == "datetime":
+				f.GoType = "time.Time"
+				f.DbType = "DATETIME"
+				f.ReactType = "DateTimeInput"
+				if false == config.Imports["time"] {
+					config.Imports["time"] = true
+				}
+				if false == m.ReactInputs["DateTimeInput"] {
+					m.ReactInputs["DateTimeInput"] = true
+				}
+				break
+			case tp == "text":
+				f.GoType = "string"
+				f.DbType = "LONGTEXT"
+				f.ReactType = "TextInput"
+				if false == m.ReactInputs["TextInput"] {
+					m.ReactInputs["TextInput"] = true
+				}
+				break
+			case tp == "float":
+				f.GoType = "float64"
+				f.DbType = "DECIMAL"
+				f.ReactType = "NumberInput"
+				if false == m.ReactInputs["NumberInput"] {
+					m.ReactInputs["NumberInput"] = true
+				}
+				break
+			case tp == "int":
+				f.GoType = "int"
+				f.DbType = "INT(11)"
+				f.ReactType = "NumberInput"
+				if false == m.ReactInputs["NumberInput"] && key != "id" {
+					m.ReactInputs["NumberInput"] = true
+				}
+				break
+			case tp == "string":
+				f.GoType = "string"
+				f.DbType = "VARCHAR(255)"
+				f.ReactType = "TextInput"
+				if false == m.ReactInputs["TextInput"] {
+					m.ReactInputs["TextInput"] = true
+				}
+				break
+			case tp == "bool":
+				f.GoType = "bool"
+				f.DbType = "BOOLEAN"
+				f.ReactType = "BooleanInput"
+				if false == m.ReactInputs["BooleanInput"] {
+					m.ReactInputs["BooleanInput"] = true
+				}
+				break
+			// todo: Many To One Relation
+			case tp == "rel":
+				f.GoType = "int"
+				f.IsRelation = true
+				f.DbType = "INT(11)"
+				f.Relation = key
+				f.ReactType = "ReferenceInput,SelectInput"
+				if false == m.ReactInputs["ReferenceInput"] {
+					m.ReactInputs["ReferenceInput"] = true
+				}
+				if false == m.ReactInputs["SelectInput"] {
+					m.ReactInputs["SelectInput"] = true
+				}
+				break
+			default:
+				panic("Error unsupported type: " + tp + " model: " + modelName + " field: " + key)
 			}
 			m.Fields = append(m.Fields, f)
 		}
