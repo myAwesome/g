@@ -14,19 +14,21 @@ import (
 // MODELS
 {{range .ModelsGo}}
 type {{.Name|snakeToCamel}} struct {
-{{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }} `json:"{{ .Name }}"`
+{{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }} `json:"{{ .Name }}"{{ if .IsRelation }} gorm:"default:null"{{end}}`
 {{end}}}
 
 func ({{.Name|snakeToCamel}}) TableName() string {
-	return "{{.Name}}"
+    return "tbl_{{.Name}}"
 }
 {{end}}
+
+// Relations
 {{range .RelationsGo}}
 type {{.Name|snakeToCamel}} struct {
-{{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }} `json:"{{ .Name }}"`
+{{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }} `json:"{{ .Name }}`
 {{end}}}
 func ({{.Name|snakeToCamel}}) TableName() string {
-	return "{{.Name}}"
+	return "tbl_{{.Name}}"
 }
 {{end}}
 // Value objects
@@ -77,7 +79,7 @@ func main() {
 func List{{.Name|snakeToCamel }}(c *gin.Context) {
 	db := DBInstance(c)
 	var list{{.Name|snakeToCamel }} []{{.Name|snakeToCamel }}
-	query := "SELECT * FROM {{.Name }} limit 10;"
+	query := "SELECT * FROM tbl_{{.Name }} limit 10;"
 	db.Raw(query).Scan(&list{{.Name|snakeToCamel }})
     c.Header("X-Total-Count", "10")
     c.Header("Access-Control-Expose-Headers", "*")

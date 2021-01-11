@@ -13,7 +13,7 @@ export const Edit{{.Name|snakeToCamel}} = (props) => (
                 {{end}}
             {{end}}
             {{ if .IsRelation }}
-                <ReferenceInput label="{{.Name}}" source="{{.Name}}" reference="{{.Name}}" >
+                <ReferenceInput label="{{.Name}}" source="{{.Name}}" reference="{{.Relation}}" >
                     <SelectInput optionText="name" />
                 </ReferenceInput>
             {{end}}

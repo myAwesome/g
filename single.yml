@@ -36,7 +36,7 @@ models:
     name: string
     capacity: int
     championat: rel
-  champgroup:
+  group:
     id: int
     name: string
     capacity: int
@@ -45,17 +45,17 @@ models:
     name: string
     id: int
     date: date
-    drawRound: int
-    drawRoundNumber: int
-    player1: rel_player
-    player2: rel_player
-    champgroup: rel
+    draw_round: int
+    draw_round_number: int
+    player_one: rel_player
+    player_two: rel_player
+    group: rel
     draw: rel
   set:
     id: int
     number: int
-    player_1_points: int
-    player_2_points: int
+    player_one_points: int
+    player_two_points: int
     match: rel
   ranking:
     id: int

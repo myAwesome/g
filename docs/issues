@@ -6,6 +6,7 @@ ISSUES:
  - mysql reserved words (group, count, etc)
  - relation react note_category
  - relation react name hardcoded now
+ - join fr-edit and frc
 
 IDEAS
  - ui for creating yml
