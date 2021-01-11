@@ -1,15 +1,16 @@
 ISSUES:
-
- - date and datetime
- - react name relation hardcoded now
+ - docs
+ - tests
  - (sql) unique field
  - limit 10
+ - mysql reserved words (group, count, etc)
  - relation react note_category
+ - relation react name hardcoded now
 
 IDEAS
+ - ui for creating yml
+ - front table position
+ - front "visual basic"
  - db_name: club_[%time%]
  - cloud based solution
  - beautiful tpml -> to beautiful code
-
-OPTIMISING BUILD
- - remove back container
