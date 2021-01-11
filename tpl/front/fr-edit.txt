@@ -8,17 +8,17 @@ export const Edit{{.Name|snakeToCamel}} = (props) => (
             {{ if not .IsId }}
                 {{ if not .IsRelation }}
                    {{ if not .IsEnum }}
-                        <{{.ReactType}} source="{{.Name|toUrl}}"/>
+                        <{{.ReactType}} source="{{.Name}}"/>
                    {{end}}
                 {{end}}
             {{end}}
             {{ if .IsRelation }}
-                <ReferenceInput label="{{.Name}}" source="{{.Name|snakeToCamel}}" reference="{{.Name|snakeToCamel}}" >
+                <ReferenceInput label="{{.Name}}" source="{{.Name}}" reference="{{.Name}}" >
                     <SelectInput optionText="name" />
                 </ReferenceInput>
             {{end}}
             {{ if .IsEnum }}
-             <SelectInput source="{{.Name|toUrl}}" choices={[
+             <SelectInput source="{{.Name}}" choices={[
                 {{ range  $key, $val := .EnumValues }}
                     { id: '{{$val}}', name: '{{$val|snakeToCamel}}' },
                 {{end}}
