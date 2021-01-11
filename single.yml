@@ -1,18 +1,63 @@
-models:
-  student:
-    id:         int
-    name:       string
-  lesson:
-    id:         int
-    name:       string
-    begin_at:   datetime
-    some_field: date
-
 env:
-  project: research
-  db_port: 3309
+  project: smash
+  db_port: 3304
   db_user: vova
   db_pass: vova
-  db_name: research
-  server_port: 8801
-
+  db_name: smash
+  server_port: 8806
+models:
+  player:
+    id: int
+    age: int
+    hand: enum_right_left
+    name: string
+  championat:
+    id: int
+    name: string
+    start_at: date
+    club: rel
+    courts: rel
+  championat_has_player:
+    id: int
+    place: int
+    points: int
+    championat: rel
+    player: rel
+  club:
+    id: int
+    name: string
+  courts:
+    id: int
+    name: string
+    address: string
+    surface: string
+  draw:
+    id: int
+    name: string
+    capacity: int
+    championat: rel
+  champgroup:
+    id: int
+    name: string
+    capacity: int
+    championat: rel
+  match:
+    name: string
+    id: int
+    date: date
+    drawRound: int
+    drawRoundNumber: int
+    player1: rel_player
+    player2: rel_player
+    champgroup: rel
+    draw: rel
+  set:
+    id: int
+    number: int
+    player_1_points: int
+    player_2_points: int
+    match: rel
+  ranking:
+    id: int
+    name: string
+    club: rel

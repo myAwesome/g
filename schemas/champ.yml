@@ -6,28 +6,19 @@ env:
   db_name: club_managmement_v0712
   server_port: 8806
 models:
-  user:
-    id: int
-    firstname: string
-    lastname: string
-    pasword: string
   player:
     id: int
     age: int
-    right_hand: bool
-    user: rel
+    hand: enum_right_left
+    name: string
   championat:
     id: int
-    title: string
-    type: string
+    name: string
     start_at: date
-    end_at: date
-    description: text
     club: rel
-    court: rel
+    courts: rel
   championat_has_player:
     id: int
-    seed: int
     place: int
     points: int
     championat: rel
@@ -35,32 +26,30 @@ models:
   club:
     id: int
     name: string
-    description: text
   courts:
     id: int
     name: string
     address: string
     surface: string
-    lat: float
-    lng: float
   draw:
     id: int
-    name_or_type: string
+    name: string
     capacity: int
     championat: rel
-  group:
+  champgroup:
     id: int
     name: string
     capacity: int
     championat: rel
   match:
+    name: string
     id: int
     date: date
     drawRound: int
     drawRoundNumber: int
     player1: rel_player
     player2: rel_player
-    group: rel
+    champgroup: rel
     draw: rel
   set:
     id: int

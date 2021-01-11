@@ -144,6 +144,9 @@ func ymlToGoConvert(config *Config) {
 				f.DbType = "ENUM('" + strings.Replace(tp[5:], "_", "','", -1) + "')"
 				enumConfig := strings.Split(tp, "_")
 				f.EnumValues = enumConfig[1:]
+				if false == m.ReactInputs["SelectInput"] {
+					m.ReactInputs["SelectInput"] = true
+				}
 				break
 			case strings.HasPrefix(tp, "rel_"):
 				f.GoType = "int"

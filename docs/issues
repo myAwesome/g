@@ -14,3 +14,6 @@ IDEAS
  - db_name: club_[%time%]
  - cloud based solution
  - beautiful tpml -> to beautiful code
+
+ VERSIONS
+ - table name formart (ex: tbl_user, tbl_match, tbl_group)    - 1.0.1
