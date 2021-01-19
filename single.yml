@@ -1,63 +1,30 @@
+models:
+  post:
+    id:          int
+    created:     date
+    body:        text
+  comment:
+    id:          int
+    created:     date
+    body:        text
+    post:        rel
+  label:
+    id:          int
+    name:        text
+  period:
+    id:          int
+    name:       text
+    start:      date
+    end:        date
+  post_has_label:
+    id:          int
+    post:        rel
+    label:       rel
 env:
-  project: smash
-  db_port: 3304
+  project: diary
+  db_port: 3301
   db_user: vova
   db_pass: vova
-  db_name: smash
-  server_port: 8806
-models:
-  player:
-    id: int
-    age: int
-    hand: enum_right_left
-    name: string
-  championat:
-    id: int
-    name: string
-    start_at: date
-    club: rel
-    courts: rel
-  championat_has_player:
-    id: int
-    place: int
-    points: int
-    championat: rel
-    player: rel
-  club:
-    id: int
-    name: string
-  courts:
-    id: int
-    name: string
-    address: string
-    surface: string
-  draw:
-    id: int
-    name: string
-    capacity: int
-    championat: rel
-  group:
-    id: int
-    name: string
-    capacity: int
-    championat: rel
-  match:
-    name: string
-    id: int
-    date: date
-    draw_round: int
-    draw_round_number: int
-    player_one: rel_player
-    player_two: rel_player
-    group: rel
-    draw: rel
-  set:
-    id: int
-    number: int
-    player_one_points: int
-    player_two_points: int
-    match: rel
-  ranking:
-    id: int
-    name: string
-    club: rel
+  db_name: diary_v1
+  server_port: 8804
+

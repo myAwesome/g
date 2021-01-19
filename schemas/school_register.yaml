@@ -16,7 +16,7 @@ models:
         lesson:     rel
 env:
     project: classroom
-    db_port: 3306
+    db_port: 3308
     db_user: vova
     db_pass: vova
     db_name: classroom_v1

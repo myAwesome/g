@@ -1,7 +1,7 @@
 models:
     post:
         id:          int
-        date:        date
+        date_field:  date
         body:        text
     comment:
         id:          int
@@ -22,7 +22,7 @@ models:
         label:       rel
 env:
     project: diary
-    db_port: 3306
+    db_port: 3301
     db_user: vova
     db_pass: vova
     db_name: diary_v1
