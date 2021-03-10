@@ -1,30 +1,17 @@
 models:
-  post:
+  wish:
     id:          int
-    created:     date
-    body:        text
-  comment:
-    id:          int
-    created:     date
-    body:        text
-    post:        rel
-  label:
-    id:          int
+    created_at:  date
     name:        text
-  period:
-    id:          int
-    name:       text
-    start:      date
-    end:        date
-  post_has_label:
-    id:          int
-    post:        rel
-    label:       rel
+    description: text
+    price_from:  int
+    price_to:    int
+    picture:     text
 env:
-  project: diary
-  db_port: 3301
+  project: wishlist
+  db_port: 3303
   db_user: vova
   db_pass: vova
-  db_name: diary_v1
-  server_port: 8804
+  db_name: wishlist_v1
+  server_port: 8803
 

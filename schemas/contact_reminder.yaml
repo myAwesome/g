@@ -2,17 +2,18 @@ models:
     person:
         id:          int
         name:        string
-        description: text
+        description: string
     contact:
         id:          int
         person:      rel
         date:        date
-        ?type:       string | ENUM (call / personal call / video call / message)
+        contact_type:     enum_personal_call_video_message
+        description: string
+
 env:
-    project: "Contact reminder"
-    db_port: 3306
+    project: "contact_reminder"
+    db_port: 3310
     db_user: vova
     db_pass: vova
     db_name: contact_reminder_v1
     server_port: 8810
-

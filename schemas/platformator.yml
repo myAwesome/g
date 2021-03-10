@@ -1,0 +1,21 @@
+models:
+  user:
+    id:          int
+    login:       string
+  application:
+    id:          int
+    name:        string
+    description: string
+    icon:        string
+  user_has_application:
+    id:          int
+    user:        rel
+    application: rel
+env:
+  project: platformator
+  db_port: 3301
+  db_user: vova
+  db_pass: vova
+  db_name: platformator_v1
+  server_port: 8804
+
