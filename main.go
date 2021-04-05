@@ -452,7 +452,7 @@ func codeGenerate(config *Config) {
 	if err != nil {
 		panic(err)
 	}
-	err = indexjsFrontTmplt.ExecuteTemplate(indexjsFrontFile, "indexjs.txt", config)
+	err = indexjsFrontTmplt.ExecuteTemplate(indexjsFrontFile, "indexjs.txt", config.Env.Project)
 	if err != nil {
 		panic(err)
 	}

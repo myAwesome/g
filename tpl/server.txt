@@ -9,8 +9,17 @@ import (
 	"log"
 	"os"
 	"github.com/gin-contrib/cors"
+    "strconv"
 	{{ range  $key, $val := .Imports }} "{{ $key }}" {{end}}
 )
+
+type Pagination struct {
+	Total 	int
+	Start  	int
+	End 	int
+	Sql 	string
+}
+
 // MODELS
 {{range .ModelsGo}}
 type {{.Name|snakeToCamel}} struct {
@@ -74,15 +83,30 @@ func main() {
 
 	r.Run(":" + serverport)
 }
+
+func Paginate(c *gin.Context) Pagination {
+	start,  _ := strconv.Atoi(c.Query("_start"))
+	end,    _ := strconv.Atoi(c.Query("_end"))
+	var p Pagination
+	p.Sql = fmt.Sprintf(" limit %d, %d", start, end-start)
+	p.Start = start
+	p.End = end
+
+	return p
+}
+
 {{range .ModelsGo}}
 
 func List{{.Name|snakeToCamel }}(c *gin.Context) {
 	db := DBInstance(c)
 	var list{{.Name|snakeToCamel }} []{{.Name|snakeToCamel }}
-	query := "SELECT * FROM tbl_{{.Name }} limit 10;"
+    pagination := Paginate(c)
+    query := fmt.Sprintf("%s %s ", "SELECT * FROM tbl_{{.Name }}", pagination.Sql)
 	db.Raw(query).Scan(&list{{.Name|snakeToCamel }})
-    c.Header("X-Total-Count", "10")
+	db.Raw("SELECT count(*) as total FROM tbl_{{.Name }}").Scan(&pagination)
+    c.Header("X-Total-Count", fmt.Sprintf("%d", pagination.Total))
     c.Header("Access-Control-Expose-Headers", "*")
+    c.Header("Access-Control-Allow-Origin", "*")
     c.JSON(200, list{{.Name|snakeToCamel }})
 }
 

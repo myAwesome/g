@@ -10,7 +10,7 @@ models:
         name:        text
 env:
     project: expenses
-    db_port: 3306
+    db_port: 3302
     db_user: vova
     db_pass: vova
     db_name: expenses_v1

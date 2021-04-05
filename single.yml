@@ -1,17 +1,19 @@
 models:
-  wish:
+  person:
     id:          int
-    created_at:  date
-    name:        text
-    description: text
-    price_from:  int
-    price_to:    int
-    picture:     text
+    name:        string
+    description: string
+  contact:
+    id:          int
+    person:      rel
+    date:        date
+    contact_type: enum_personal_call_video_message
+    description: string
+
 env:
-  project: wishlist
-  db_port: 3303
+  project: "contact_reminder"
+  db_port: 3320
   db_user: vova
   db_pass: vova
-  db_name: wishlist_v1
-  server_port: 8803
-
+  db_name: contact_reminder_v1
+  server_port: 8820

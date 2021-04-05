@@ -7,15 +7,19 @@ models:
     name:        string
     description: string
     icon:        string
+    path_header:    string
+    path_sidebar:   string
+    path_context:   string
+
   user_has_application:
     id:          int
     user:        rel
     application: rel
 env:
   project: platformator
-  db_port: 3301
+  db_port: 3300
   db_user: vova
   db_pass: vova
-  db_name: platformator_v1
-  server_port: 8804
+  db_name: platformator_v2
+  server_port: 8800
 
