@@ -1,4 +1,4 @@
-###g
+###g (Gaplicator)
 
 Application generator.
 
