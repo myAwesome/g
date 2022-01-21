@@ -7,6 +7,7 @@ pwd &&
 cp ../node_modules.tar ../app/front/node_modules.tar &&
 cd front &&
 tar -xvf node_modules.tar &&
+rm node_modules.tar &&
 cd ../ &&
 echo "wait 15 sec for Database"
 sleep 15 &&
