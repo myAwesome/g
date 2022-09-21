@@ -36,6 +36,19 @@ type Env struct {
 	Project    string `yaml:"project"`
 }
 
+// todo: implement
+type Env2 struct {
+	Database struct {
+		Type string
+		Port int
+		User string
+		Pass string
+		Name string
+	}
+	Server string
+	UI     string
+}
+
 type Model struct {
 	Name        string
 	Fields      []Field
@@ -313,7 +326,6 @@ func renderSQL(funcMap template.FuncMap, config *Config) {
 }
 
 func createGolangServer(funcMap template.FuncMap, config *Config) {
-	// todo back
 	fmt.Println(" ")
 	fmt.Println("back ...")
 	fmt.Println(" ")
@@ -400,7 +412,6 @@ func createGolangServer(funcMap template.FuncMap, config *Config) {
 }
 
 func createReactAdminFrontend(funcMap template.FuncMap, config *Config) {
-	// todo FRONT
 	fmt.Println(" ")
 	fmt.Println("FRONT ...")
 	fmt.Println(" ")
