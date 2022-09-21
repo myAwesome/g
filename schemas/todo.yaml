@@ -1,0 +1,14 @@
+models:
+  todo:
+    id:          int
+    created_at:  date
+    description: text
+    done:     bool
+env:
+  project: todolist
+  db_port: 3306
+  db_user: vova
+  db_pass: vova
+  db_name: todolist_v1
+  server_port: 8804
+

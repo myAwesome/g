@@ -1,0 +1,28 @@
+models:
+  room:
+    id:          int
+    name:        string
+    is_direct:    bool
+  participant:
+    id: int
+    name: string
+    email: string
+    password: string
+  message:
+    id: int
+    text: string
+    created: date
+    author: rel_participant
+    room: rel
+  room_has_participants:
+    id: int
+    room: rel
+    participant: rel
+
+env:
+  project: "chat"
+  db_port: 3300
+  db_user: user
+  db_pass: pass
+  db_name: chat_v1
+  server_port: 8020
