@@ -1,4 +1,4 @@
-{{ $port := .Env.Server_Port }}{{range .ModelsGo}}
+{{ $port := .Env.ServerPort }}{{range .ModelsGo}}
 GET    http://localhost:{{$port}}/{{.Name|toUrl}}
 POST   http://localhost:{{$port}}/{{.Name|toUrl}}
 GET    http://localhost:{{$port}}/{{.Name|toUrl}}/:id

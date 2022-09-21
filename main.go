@@ -28,10 +28,11 @@ type Config struct {
 
 type Env struct {
 	DbPort     int    `yaml:"db_port"`
+	ServerPort int    `yaml:"server_port"`
 	DbUser     string `yaml:"db_user"`
 	DbPass     string `yaml:"db_pass"`
 	DbName     string `yaml:"db_name"`
-	ServerPort int    `yaml:"server_port"`
+	RootFolder string `yaml:"root_folder"`
 	Project    string `yaml:"project"`
 }
 
@@ -260,24 +261,22 @@ func ymlToGoConvert(config *Config) {
 	}
 }
 
-func codeGenerate(config *Config) {
-	funcMap := template.FuncMap{
-		"snakeToCamel": toCamelCase,
-		"toUrl":        toUrl,
-		"fieldVarName": fieldVarName,
-		"count":        count,
-	}
-
-	// todo root
+func createRootDir(config *Config) {
 	fmt.Println(" ")
 	fmt.Println("Root ...")
-	fmt.Println(" ")
+	fmt.Println(config.Env.RootFolder)
 
-	err := os.Mkdir("./app", 0750)
+	err := os.Mkdir(fmt.Sprintf("./%s", config.Env.RootFolder), 0750)
 	if err != nil {
 		panic(err)
 	}
+	err = os.Mkdir("./app", 0750)
+	if err != nil {
+		panic(err)
+	}
+}
 
+func renderDockerCompose(funcMap template.FuncMap) {
 	fmt.Println("docker-compose generating...")
 	dcTemplt, err := template.New("docker-compose.txt").Funcs(funcMap).ParseFiles("tpl/docker-compose.txt")
 	if err != nil {
@@ -292,6 +291,9 @@ func codeGenerate(config *Config) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func renderSQL(funcMap template.FuncMap, config *Config) {
 
 	// SQL
 	fmt.Println("sql generating...")
@@ -308,14 +310,16 @@ func codeGenerate(config *Config) {
 	if err != nil {
 		panic(err)
 	}
+}
 
+func createGolangServer(funcMap template.FuncMap, config *Config) {
 	// todo back
 	fmt.Println(" ")
 	fmt.Println("back ...")
 	fmt.Println(" ")
 
 	backFolderName := "./app/back"
-	err = os.Mkdir(backFolderName, 0750)
+	err := os.Mkdir(backFolderName, 0750)
 	if err != nil {
 		panic(err)
 	}
@@ -393,14 +397,16 @@ func codeGenerate(config *Config) {
 	if err != nil {
 		panic(err)
 	}
+}
 
+func createReactAdminFrontend(funcMap template.FuncMap, config *Config) {
 	// todo FRONT
 	fmt.Println(" ")
 	fmt.Println("FRONT ...")
 	fmt.Println(" ")
 
 	frontFolderName := "./app/front"
-	err = os.Mkdir(frontFolderName, 0750)
+	err := os.Mkdir(frontFolderName, 0750)
 	if err != nil {
 		panic(err)
 	}
@@ -505,7 +511,6 @@ func codeGenerate(config *Config) {
 			panic(err)
 		}
 	}
-
 	// Dockerfile
 	fmt.Println("Dockerfile generating...")
 	frontDockerTmplt, err := template.New("dockerfile.txt").Funcs(funcMap).ParseFiles("tpl/front/dockerfile.txt")
@@ -522,4 +527,20 @@ func codeGenerate(config *Config) {
 	if err != nil {
 		panic(err)
 	}
+
+}
+
+func codeGenerate(config *Config) {
+	funcMap := template.FuncMap{
+		"snakeToCamel": toCamelCase,
+		"toUrl":        toUrl,
+		"fieldVarName": fieldVarName,
+		"count":        count,
+	}
+
+	createRootDir(config)
+	renderDockerCompose(funcMap)
+	renderSQL(funcMap, config)
+	createGolangServer(funcMap, config)
+	createReactAdminFrontend(funcMap, config)
 }

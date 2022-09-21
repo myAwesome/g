@@ -1,4 +1,4 @@
-{{$schema := .Env.Db_Name }}CREATE DATABASE IF NOT EXISTS `{{$schema}}`;{{range .ModelsGo}}{{$table := (printf "%s_%s" "tbl" .Name)}}
+{{$schema := .Env.DbName }}CREATE DATABASE IF NOT EXISTS `{{$schema}}`;{{range .ModelsGo}}{{$table := (printf "%s_%s" "tbl" .Name)}}
 CREATE TABLE `{{$schema}}`.`{{$table}}` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   {{range .Fields}}{{ if not .IsId }}`{{.Name}}` {{.DbType}} DEFAULT NULL,{{end}}
