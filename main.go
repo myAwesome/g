@@ -27,12 +27,12 @@ type Config struct {
 }
 
 type Env struct {
-	Db_Port     int
-	Db_User     string
-	Db_Pass     string
-	Db_Name     string
-	Server_Port int
-	Project     string
+	DbPort     int    `yaml:"db_port"`
+	DbUser     string `yaml:"db_user"`
+	DbPass     string `yaml:"db_pass"`
+	DbName     string `yaml:"db_name"`
+	ServerPort int    `yaml:"server_port"`
+	Project    string `yaml:"project"`
 }
 
 type Model struct {
@@ -129,7 +129,7 @@ func ymlValidate(config *Config) {
 }
 
 func ymlToGoConvert(config *Config) {
-	config.Env.Db_Name = config.Env.Db_Name + "_" + strconv.FormatInt(time.Now().Unix(), 10)
+	config.Env.DbName = config.Env.DbName + "_" + strconv.FormatInt(time.Now().Unix(), 10)
 	for modelName, modelFields := range config.Models {
 		m := Model{Name: modelName}
 		m.ReactInputs = make(map[string]bool)
