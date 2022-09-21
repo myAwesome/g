@@ -1,4 +1,9 @@
 ISSUES:
+- Change generated folder from 'app' to 'app_%app_name%'
+- add support
+  - postgreSQL
+  - node Js
+
 - Root container front
 - back doesnot support ordering
 
@@ -10,11 +15,11 @@ ISSUES:
  - mysql reserved words (group, count, etc)
  - relation react note_category
  - relation react name hardcoded now
- - join fr-edit and frc
+ - join fr-edit and frc ??????
 
 IDEAS
  - ui for creating yml
- - front table position
+ - front table position ?????????
  - front "visual basic"
  - db_name: club_[%time%]
  - cloud based solution
@@ -22,3 +27,5 @@ IDEAS
 
  VERSIONS
  - table name formart (ex: tbl_user, tbl_match, tbl_group)    - 1.0.1
+
+
