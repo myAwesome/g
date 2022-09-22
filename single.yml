@@ -1,19 +1,42 @@
 models:
-  person:
+  room:
     id:          int
     name:        string
-    description: string
-  contact:
-    id:          int
-    person:      rel
-    date:        date
-    contact_type: enum_personal_call_video_message
-    description: string
+    is_direct:    bool
+  participant:
+    id: int
+    name: string
+    email: string
+    password: string
+  message:
+    id: int
+    text: string
+    created: date
+    author: rel_participant
+    room: rel
+  room_has_participants:
+    id: int
+    room: rel
+    participant: rel
 
 env:
-  project: "contact_reminder"
-  db_port: 3320
-  db_user: vova
-  db_pass: vova
-  db_name: contact_reminder_v1
-  server_port: 8820
+  project: "chat"
+  db_port: 3300
+  db_user: user
+  db_pass: pass
+  db_name: chat_v1
+  server_port: 8020
+  root_folder: "app_chat"
+env2:
+  database:
+    type: mysql
+    port: 3306
+    user: vova
+    pass: vova
+    name: classroom_hash
+  server:
+    type: go
+    port: 8021
+  ui:
+    type: react-admin
+    port: 3000

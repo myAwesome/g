@@ -21,6 +21,7 @@ type Config struct {
 	Imports   map[string]bool
 
 	Env         Env
+	Env2        Env2
 	ModelsGo    []Model
 	VoGo        []Model
 	RelationsGo []Model
@@ -36,8 +37,8 @@ type Env struct {
 	Project    string `yaml:"project"`
 }
 
-// todo: implement
 type Env2 struct {
+	Project  string
 	Database struct {
 		Type string
 		Port int
@@ -45,8 +46,14 @@ type Env2 struct {
 		Pass string
 		Name string
 	}
-	Server string
-	UI     string
+	Server struct {
+		Type string
+		Port int
+	}
+	UI struct {
+		Type string
+		Port int
+	}
 }
 
 type Model struct {
@@ -119,8 +126,9 @@ func main() {
 	}
 
 	ymlToGoConvert(&config)
-	ymlValidate(&config)
-	codeGenerate(&config)
+	fmt.Println(config.Env2)
+	//ymlValidate(&config)
+	//codeGenerate(&config)
 
 }
 
@@ -306,20 +314,20 @@ func renderDockerCompose(funcMap template.FuncMap) {
 	}
 }
 
-func renderSQL(funcMap template.FuncMap, config *Config) {
+func renderMySQL(funcMap template.FuncMap, config *Config) {
 
 	// SQL
 	fmt.Println("sql generating...")
-	tmpltSql, err := template.New("sql.txt").Funcs(funcMap).ParseFiles("tpl/sql.txt")
+	tmpltSql, err := template.New("mysql.txt").Funcs(funcMap).ParseFiles("tpl/mysql.txt")
 
 	if err != nil {
 		panic(err)
 	}
-	sqlFile, err := os.Create("./app/sql.sql")
+	sqlFile, err := os.Create("./app/mysql.sql")
 	if err != nil {
 		panic(err)
 	}
-	err = tmpltSql.ExecuteTemplate(sqlFile, "sql.txt", config)
+	err = tmpltSql.ExecuteTemplate(sqlFile, "mysql.txt", config)
 	if err != nil {
 		panic(err)
 	}
@@ -551,7 +559,7 @@ func codeGenerate(config *Config) {
 
 	createRootDir(config)
 	renderDockerCompose(funcMap)
-	renderSQL(funcMap, config)
+	renderMySQL(funcMap, config)
 	createGolangServer(funcMap, config)
 	createReactAdminFrontend(funcMap, config)
 }

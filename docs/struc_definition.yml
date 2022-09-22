@@ -22,4 +22,16 @@ env:
   db_pass: vova
   db_name: classroom_hash
   server_port: 8881
-
+env2:
+  database:
+    type: mysql
+    port: 3306
+    user: vova
+    pass: vova
+    name: classroom_hash
+  server:
+    type: go
+    port: 8021
+  ui:
+    type: react-admin
+    port: 3000
