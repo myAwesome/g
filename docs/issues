@@ -1,5 +1,4 @@
 ISSUES:
-- Change generated folder from 'app' to 'app_%app_name%'
 - add support
   - postgreSQL
   - node Js

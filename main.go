@@ -33,7 +33,6 @@ type Env struct {
 	DbUser     string `yaml:"db_user"`
 	DbPass     string `yaml:"db_pass"`
 	DbName     string `yaml:"db_name"`
-	RootFolder string `yaml:"root_folder"`
 	Project    string `yaml:"project"`
 }
 
@@ -126,10 +125,8 @@ func main() {
 	}
 
 	ymlToGoConvert(&config)
-	fmt.Println(config.Env2)
-	//ymlValidate(&config)
-	//codeGenerate(&config)
-
+	ymlValidate(&config)
+	codeGenerate(&config)
 }
 
 func ymlValidate(config *Config) {
@@ -282,29 +279,26 @@ func ymlToGoConvert(config *Config) {
 	}
 }
 
-func createRootDir(config *Config) {
+func createRootDir(config *Config) string {
 	fmt.Println(" ")
-	fmt.Println("Root ...")
-	fmt.Println(config.Env.RootFolder)
+	fmt.Println("Root folder")
+	rootDir := fmt.Sprintf("./app-%s", config.Env.Project)
+	err := os.Mkdir(rootDir, 0750)
+	if err != nil {
+		panic(err)
+	}
 
-	err := os.Mkdir(fmt.Sprintf("./%s", config.Env.RootFolder), 0750)
-	if err != nil {
-		panic(err)
-	}
-	err = os.Mkdir("./app", 0750)
-	if err != nil {
-		panic(err)
-	}
+	return rootDir
 }
 
-func renderDockerCompose(funcMap template.FuncMap) {
+func renderDockerCompose(funcMap template.FuncMap, rootDir string) {
 	fmt.Println("docker-compose generating...")
 	dcTemplt, err := template.New("docker-compose.txt").Funcs(funcMap).ParseFiles("tpl/docker-compose.txt")
 	if err != nil {
 		panic(err)
 	}
 
-	dcFile, err := os.Create("./app/docker-compose.yml")
+	dcFile, err := os.Create(fmt.Sprintf("./%s/docker-compose.yml", rootDir))
 	if err != nil {
 		panic(err)
 	}
@@ -314,7 +308,7 @@ func renderDockerCompose(funcMap template.FuncMap) {
 	}
 }
 
-func renderMySQL(funcMap template.FuncMap, config *Config) {
+func renderMySQL(funcMap template.FuncMap, config *Config, rootDir string) {
 
 	// SQL
 	fmt.Println("sql generating...")
@@ -323,7 +317,7 @@ func renderMySQL(funcMap template.FuncMap, config *Config) {
 	if err != nil {
 		panic(err)
 	}
-	sqlFile, err := os.Create("./app/mysql.sql")
+	sqlFile, err := os.Create(fmt.Sprintf("./%s/mysql.sql", rootDir))
 	if err != nil {
 		panic(err)
 	}
@@ -333,12 +327,12 @@ func renderMySQL(funcMap template.FuncMap, config *Config) {
 	}
 }
 
-func createGolangServer(funcMap template.FuncMap, config *Config) {
+func createGolangServer(funcMap template.FuncMap, config *Config, rootDir string) {
 	fmt.Println(" ")
 	fmt.Println("back ...")
 	fmt.Println(" ")
 
-	backFolderName := "./app/back"
+	backFolderName := fmt.Sprintf("./%s/back", rootDir)
 	err := os.Mkdir(backFolderName, 0750)
 	if err != nil {
 		panic(err)
@@ -372,7 +366,7 @@ func createGolangServer(funcMap template.FuncMap, config *Config) {
 		panic(err)
 	}
 
-	envGeneralFile, err := os.Create("./app/.env")
+	envGeneralFile, err := os.Create(fmt.Sprintf("./%s/.env", rootDir))
 	if err != nil {
 		panic(err)
 	}
@@ -419,12 +413,13 @@ func createGolangServer(funcMap template.FuncMap, config *Config) {
 	}
 }
 
-func createReactAdminFrontend(funcMap template.FuncMap, config *Config) {
+func createReactAdminFrontend(funcMap template.FuncMap, config *Config, rootDir string) {
 	fmt.Println(" ")
 	fmt.Println("FRONT ...")
 	fmt.Println(" ")
 
-	frontFolderName := "./app/front"
+	frontFolderName := fmt.Sprintf("./%s/front", rootDir)
+
 	err := os.Mkdir(frontFolderName, 0750)
 	if err != nil {
 		panic(err)
@@ -557,9 +552,9 @@ func codeGenerate(config *Config) {
 		"count":        count,
 	}
 
-	createRootDir(config)
-	renderDockerCompose(funcMap)
-	renderMySQL(funcMap, config)
-	createGolangServer(funcMap, config)
-	createReactAdminFrontend(funcMap, config)
+	rootDir := createRootDir(config)
+	renderDockerCompose(funcMap, rootDir)
+	renderMySQL(funcMap, config, rootDir)
+	createGolangServer(funcMap, config, rootDir)
+	createReactAdminFrontend(funcMap, config, rootDir)
 }
