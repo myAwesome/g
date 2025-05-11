@@ -1,7 +1,14 @@
 models:
   student:
-    id:         int
-    name:       string
+    first_name:      string
+    last_name:       string
+    date_of_birth:   date
+    email:           string
+    phone_number:    string
+    address:         string
+    enrollment_date: date
+    major:        string
+    gpa:          float
   discipline:
     id:         int
     name:       string
@@ -16,12 +23,9 @@ models:
     lesson:     rel
 env:
   project: classroom
-  db_port: 3306
+  db_port: 3308
   db_user: vova
   db_pass: vova
-  db_name: classroom_hash
+  db_name: classroom_hash2
   server_port: 8881
 
-
-  enum_male_female_undefined
-  rel_player

@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
@@ -12,6 +11,8 @@ import (
 	"strings"
 	"text/template"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
@@ -42,12 +43,11 @@ type Model struct {
 }
 
 type Field struct {
-	Name      string
-	Type      string
-	GoType    string
-	DbType    string
-	ReactType string
-
+	Name       string
+	Type       string
+	GoType     string
+	DbType     string
+	ReactType  string
 	IsId       bool
 	IsRelation bool
 	Relation   string
@@ -138,8 +138,8 @@ func ymlToGoConvert(config *Config) {
 			f := Field{Name: key, Type: tp}
 			f.IsId = key == "id"
 			f.IsRelation = false
-			if strings.HasPrefix(tp, "rel_") || strings.HasPrefix(tp, "enum_") {
-				if strings.HasPrefix(tp, "rel_") {
+			if strings.HasPrefix(tp, "relation_") || strings.HasPrefix(tp, "enum") {
+				if strings.HasPrefix(tp, "relation_") {
 					f.GoType = "int"
 					f.IsRelation = true
 					f.DbType = "INT(11)"
@@ -153,9 +153,23 @@ func ymlToGoConvert(config *Config) {
 				} else {
 					f.GoType = "string"
 					f.IsEnum = true
-					f.DbType = "ENUM('" + strings.Replace(tp[5:], "_", "','", -1) + "')"
-					enumConfig := strings.Split(tp, "_")
-					f.EnumValues = enumConfig[1:]
+					enumValues := strings.Split(tp[5:len(tp)-1], `,`)
+					for i, value := range enumValues {
+
+						fmt.Println("value", value)
+						fmt.Println("trim", value[1:len(value)-1])
+
+						enumValues[i] = value[1 : len(value)-1]
+					}
+					fmt.Println("ENUM VALUES: ", enumValues)
+					f.EnumValues = enumValues
+					enumValuesFormatted := "'" + strings.Join(enumValues, "','") + "'"
+					f.DbType = "ENUM(" + enumValuesFormatted + ")"
+
+					if false == m.ReactInputs["SelectInput"] {
+						m.ReactInputs["SelectInput"] = true
+					}
+
 				}
 
 			} else {
@@ -211,7 +225,7 @@ func ymlToGoConvert(config *Config) {
 						m.ReactInputs["TextInput"] = true
 					}
 					break
-				case "bool":
+				case "boolean":
 					f.GoType = "bool"
 					f.DbType = "BOOLEAN"
 					f.ReactType = "BooleanInput"

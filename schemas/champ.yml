@@ -10,7 +10,7 @@ models:
     id: int
     firstname: string
     lastname: string
-    pasword: string
+    password: string
   player:
     id: int
     age: int
