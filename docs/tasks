@@ -1,0 +1,14 @@
+✅❌
+
+❌ 1) separate DB     creation
+❌ 2) separate FRONT  creation
+❌ 2) separate SERVER creation
+
+
+7. Додаткові можливості (MVP++)
+UI-білдер для YAML через форму
+Auth (JWT + логін форма)
+Підтримка зв’язків (1:N, N:M)
+Генерація Swagger документації
+I18n підтримка (en/ua/pl)
+CLI-інтерфейс для генерації: ga generate app.yml

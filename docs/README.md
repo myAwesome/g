@@ -10,3 +10,9 @@ Requirements
 - docker
 - node npm
   node_modules
+
+
+
+Usage
+1. Run bash script `./up`. 
+2. run server and client ` (./server &) && cd ../front && (npm start &)`

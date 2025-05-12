@@ -5,6 +5,9 @@ models:
     discipline:
         id:         int
         name:       string
+    student_has_discipline:
+        student: rel
+        discipline: rel
     lesson:
         id:         int
         name:       string

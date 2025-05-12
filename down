@@ -1,4 +1,4 @@
-pwd &&
+./pwd &&
 cd ./app &&
 docker-compose down &&
 cd ../ &&
