@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"gopkg.in/yaml.v2"
 	"log"
 	"os"
 	"regexp"
@@ -11,19 +11,15 @@ import (
 	"strings"
 	"text/template"
 	"time"
-
-	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
 	Models    map[string]map[string]string
-	Vo        map[string]map[string]string
 	Relations map[string]map[string]string
 	Imports   map[string]bool
 
 	Env         Env
 	ModelsGo    []Model
-	VoGo        []Model
 	RelationsGo []Model
 }
 
@@ -39,6 +35,7 @@ type Env struct {
 type Model struct {
 	Name        string
 	Fields      []Field
+	Metadata    interface{} `yaml:"_meta"`
 	ReactInputs map[string]bool
 }
 
@@ -51,7 +48,6 @@ type Field struct {
 	IsId       bool
 	IsRelation bool
 	Relation   string
-
 	IsEnum     bool
 	EnumValues []string
 }
@@ -90,28 +86,73 @@ func count(arr []Field) int {
 	return len(arr) - 1
 }
 
+func addReactInput(m *Model, inputType string) {
+	if !m.ReactInputs[inputType] {
+		m.ReactInputs[inputType] = true
+	}
+}
+
+func getYAMLFileName() string {
+	if name := os.Getenv("YML"); name != "" {
+		return name
+	}
+	return "single.yml"
+}
+
 func main() {
-	fileName := os.Getenv("YML")
-	if fileName == "" {
-		fileName = "single.yml"
-	}
-	data, _ := ioutil.ReadFile(fileName)
-	config := Config{}
-	config.Imports = make(map[string]bool)
+	fileName := getYAMLFileName()
 
-	err := yaml.Unmarshal([]byte(data), &config)
+	data, err := os.ReadFile(fileName)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		log.Fatalf("failed to read file: %v", err)
 	}
 
+	config := Config{Imports: make(map[string]bool)}
+
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		log.Fatalf("error parsing YAML: %v", err)
+	}
+
+	setDefaultEnv(&config)
+	logParsedModels(&config)
 	ymlToGoConvert(&config)
 	ymlValidate(&config)
 	codeGenerate(&config)
+}
 
+func setDefaultEnv(config *Config) {
+	if config.Env.Project == "" {
+		config.Env.Project = "project_default"
+	}
+	if config.Env.Db_Pass == "" {
+		config.Env.Db_Pass = "pass"
+	}
+	if config.Env.Db_User == "" {
+		config.Env.Db_User = "user"
+	}
+	if config.Env.Db_Name == "" {
+		config.Env.Db_Name = "db_name"
+	}
+	config.Env.Db_Name = config.Env.Db_Name + "_" + strconv.FormatInt(time.Now().Unix(), 10)
+	if config.Env.Db_Port == 0 {
+		config.Env.Db_Port = 3316
+	}
+	if config.Env.Server_Port == 0 {
+		config.Env.Server_Port = 8833
+	}
+}
+
+func logParsedModels(parsed *Config) {
+	for modelName, fields := range parsed.Models {
+		fmt.Printf("Model: %s\n", modelName)
+		for field, value := range fields {
+			fmt.Printf("  Field: %s, Type: %v\n", field, value)
+		}
+	}
 }
 
 func ymlValidate(config *Config) {
-	fmt.Println("yml Validation ...")
+	fmt.Println("YML Validation ...")
 
 	modelNames := make(map[string]bool)
 	for _, model := range config.ModelsGo {
@@ -128,12 +169,20 @@ func ymlValidate(config *Config) {
 	}
 }
 
+func addDefaultId(modelFields map[string]string) {
+	if _, exists := modelFields["id"]; !exists {
+		modelFields["id"] = "int"
+	}
+}
+
 func ymlToGoConvert(config *Config) {
-	// todo: unique db here - ніпанятна
-	config.Env.Db_Name = config.Env.Db_Name + "_" + strconv.FormatInt(time.Now().Unix(), 10)
+
 	for modelName, modelFields := range config.Models {
 		m := Model{Name: modelName}
 		m.ReactInputs = make(map[string]bool)
+
+		addDefaultId(modelFields)
+
 		for key, tp := range modelFields {
 			f := Field{Name: key, Type: tp}
 			f.IsId = key == "id"
@@ -143,13 +192,10 @@ func ymlToGoConvert(config *Config) {
 					f.GoType = "int"
 					f.IsRelation = true
 					f.DbType = "INT(11)"
-					f.Relation = tp[4:]
-					if false == m.ReactInputs["ReferenceInput"] {
-						m.ReactInputs["ReferenceInput"] = true
-					}
-					if false == m.ReactInputs["SelectInput"] {
-						m.ReactInputs["SelectInput"] = true
-					}
+					f.Relation = tp[9:]
+					addReactInput(&m, "ReferenceInput")
+					addReactInput(&m, "SelectInput")
+
 				} else {
 					f.GoType = "string"
 					f.IsEnum = true
@@ -165,11 +211,7 @@ func ymlToGoConvert(config *Config) {
 					f.EnumValues = enumValues
 					enumValuesFormatted := "'" + strings.Join(enumValues, "','") + "'"
 					f.DbType = "ENUM(" + enumValuesFormatted + ")"
-
-					if false == m.ReactInputs["SelectInput"] {
-						m.ReactInputs["SelectInput"] = true
-					}
-
+					addReactInput(&m, "SelectInput")
 				}
 
 			} else {
@@ -178,9 +220,7 @@ func ymlToGoConvert(config *Config) {
 					f.GoType = "string"
 					f.DbType = "DATETIME"
 					f.ReactType = "DateInput"
-					if false == m.ReactInputs["DateInput"] {
-						m.ReactInputs["DateInput"] = true
-					}
+					addReactInput(&m, "DateInput")
 					break
 				case "datetime":
 					f.GoType = "time.Time"
@@ -189,25 +229,20 @@ func ymlToGoConvert(config *Config) {
 					if false == config.Imports["time"] {
 						config.Imports["time"] = true
 					}
-					if false == m.ReactInputs["DateTimeInput"] {
-						m.ReactInputs["DateTimeInput"] = true
-					}
+					addReactInput(&m, "DateTimeInput")
+
 					break
 				case "text":
 					f.GoType = "string"
 					f.DbType = "LONGTEXT"
 					f.ReactType = "TextInput"
-					if false == m.ReactInputs["TextInput"] {
-						m.ReactInputs["TextInput"] = true
-					}
+					addReactInput(&m, "TextInput")
 					break
 				case "float":
 					f.GoType = "float64"
 					f.DbType = "DECIMAL"
 					f.ReactType = "NumberInput"
-					if false == m.ReactInputs["NumberInput"] {
-						m.ReactInputs["NumberInput"] = true
-					}
+					addReactInput(&m, "NumberInput")
 					break
 				case "int":
 					f.GoType = "int"
@@ -221,17 +256,14 @@ func ymlToGoConvert(config *Config) {
 					f.GoType = "string"
 					f.DbType = "VARCHAR(255)"
 					f.ReactType = "TextInput"
-					if false == m.ReactInputs["TextInput"] {
-						m.ReactInputs["TextInput"] = true
-					}
+					addReactInput(&m, "TextInput")
 					break
 				case "boolean":
 					f.GoType = "bool"
 					f.DbType = "BOOLEAN"
 					f.ReactType = "BooleanInput"
-					if false == m.ReactInputs["BooleanInput"] {
-						m.ReactInputs["BooleanInput"] = true
-					}
+					addReactInput(&m, "BooleanInput")
+
 					break
 				// todo: Many To One Relation
 				case "rel":
@@ -240,12 +272,8 @@ func ymlToGoConvert(config *Config) {
 					f.DbType = "INT(11)"
 					f.Relation = key
 					f.ReactType = "ReferenceInput,SelectInput"
-					if false == m.ReactInputs["ReferenceInput"] {
-						m.ReactInputs["ReferenceInput"] = true
-					}
-					if false == m.ReactInputs["SelectInput"] {
-						m.ReactInputs["SelectInput"] = true
-					}
+					addReactInput(&m, "ReferenceInput")
+					addReactInput(&m, "SelectInput")
 					break
 				default:
 					panic("Error unsupported type: " + tp + " model: " + modelName + " field: " + key)
@@ -275,6 +303,28 @@ func ymlToGoConvert(config *Config) {
 	}
 }
 
+func checkErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func mustMkdir(path string) {
+	err := os.Mkdir(path, 0750)
+	if err != nil && !os.IsExist(err) {
+		panic(err)
+	}
+}
+
+func generateFromTemplate(outputPath, templatePath, templateName string, data interface{}, funcMap template.FuncMap) {
+	tmpl, err := template.New(templateName).Funcs(funcMap).ParseFiles(templatePath)
+	checkErr(err)
+	file, err := os.Create(outputPath)
+	checkErr(err)
+	err = tmpl.ExecuteTemplate(file, templateName, data)
+	checkErr(err)
+}
+
 func codeGenerate(config *Config) {
 	funcMap := template.FuncMap{
 		"snakeToCamel": toCamelCase,
@@ -283,258 +333,47 @@ func codeGenerate(config *Config) {
 		"count":        count,
 	}
 
-	// todo root
-	fmt.Println(" ")
-	fmt.Println("Root ...")
-	fmt.Println(" ")
+	projectRoot := "./app/" + config.Env.Project
+	fmt.Println("\nGenerating Root Structure...")
+	mustMkdir(projectRoot)
 
-	err := os.Mkdir("./app", 0750)
-	if err != nil {
-		panic(err)
-	}
+	// Root-level files
+	generateFromTemplate(projectRoot+"/docker-compose.yml", "tpl/docker-compose.txt", "docker-compose.txt", nil, funcMap)
+	generateFromTemplate(projectRoot+"/sql.sql", "tpl/sql.txt", "sql.txt", config, funcMap)
 
-	fmt.Println("docker-compose generating...")
-	dcTemplt, err := template.New("docker-compose.txt").Funcs(funcMap).ParseFiles("tpl/docker-compose.txt")
-	if err != nil {
-		panic(err)
-	}
+	// Backend
+	fmt.Println("\nGenerating Backend...")
+	backFolder := projectRoot + "/back"
+	mustMkdir(backFolder)
 
-	dcFile, err := os.Create("./app/docker-compose.yml")
-	if err != nil {
-		panic(err)
-	}
-	err = dcTemplt.ExecuteTemplate(dcFile, "docker-compose.txt", nil)
-	if err != nil {
-		panic(err)
-	}
+	generateFromTemplate(backFolder+"/server.go", "tpl/server.txt", "server.txt", config, funcMap)
+	generateFromTemplate(backFolder+"/.env", "tpl/env.txt", "env.txt", config.Env, funcMap)
+	generateFromTemplate(projectRoot+"/.env", "tpl/env.txt", "env.txt", config.Env, funcMap)
+	generateFromTemplate(backFolder+"/routes.txt", "tpl/routes.txt", "routes.txt", config, funcMap)
+	generateFromTemplate(backFolder+"/Dockerfile", "tpl/dockerfileServer.txt", "dockerfileServer.txt", nil, funcMap)
 
-	// SQL
-	fmt.Println("sql generating...")
-	tmpltSql, err := template.New("sql.txt").Funcs(funcMap).ParseFiles("tpl/sql.txt")
+	// Frontend
+	fmt.Println("\nGenerating Frontend...")
+	frontFolder := projectRoot + "/front"
+	mustMkdir(frontFolder)
+	mustMkdir(frontFolder + "/public")
+	mustMkdir(frontFolder + "/src")
 
-	if err != nil {
-		panic(err)
-	}
-	sqlFile, err := os.Create("./app/sql.sql")
-	if err != nil {
-		panic(err)
-	}
-	err = tmpltSql.ExecuteTemplate(sqlFile, "sql.txt", config)
-	if err != nil {
-		panic(err)
-	}
+	generateFromTemplate(frontFolder+"/public/index.html", "tpl/front/index.txt", "index.txt", config.Env.Project, funcMap)
+	generateFromTemplate(frontFolder+"/package.json", "tpl/front/package.txt", "package.txt", config.Env.Project, funcMap)
+	generateFromTemplate(frontFolder+"/src/index.js", "tpl/front/indexjs.txt", "indexjs.txt", config, funcMap)
+	generateFromTemplate(frontFolder+"/src/App.js", "tpl/front/appjs.txt", "appjs.txt", config, funcMap)
+	generateFromTemplate(frontFolder+"/Dockerfile", "tpl/front/dockerfile.txt", "dockerfile.txt", nil, funcMap)
 
-	// todo back
-	fmt.Println(" ")
-	fmt.Println("back ...")
-	fmt.Println(" ")
+	// Components per model
+	componentTpl := "tpl/front/frc.txt"
+	componentEditTpl := "tpl/front/fr-edit.txt"
 
-	backFolderName := "./app/back"
-	err = os.Mkdir(backFolderName, 0750)
-	if err != nil {
-		panic(err)
-	}
+	for _, model := range config.ModelsGo {
+		componentDir := frontFolder + "/src/" + model.Name
+		mustMkdir(componentDir)
 
-	// server file
-	fmt.Println("server generating...")
-	tmplt, err := template.New("server.txt").Funcs(funcMap).ParseFiles("tpl/server.txt")
-
-	if err != nil {
-		panic(err)
-	}
-	file, err := os.Create(backFolderName + "/server.go")
-	if err != nil {
-		panic(err)
-	}
-	err = tmplt.ExecuteTemplate(file, "server.txt", config)
-	if err != nil {
-		panic(err)
-	}
-
-	// ENV file
-	fmt.Println("env generating...")
-	tmpltEnv, err := template.New("env.txt").Funcs(funcMap).ParseFiles("tpl/env.txt")
-
-	if err != nil {
-		panic(err)
-	}
-	envFile, err := os.Create(backFolderName + "/.env")
-	if err != nil {
-		panic(err)
-	}
-
-	envGeneralFile, err := os.Create("./app/.env")
-	if err != nil {
-		panic(err)
-	}
-
-	err = tmpltEnv.ExecuteTemplate(envFile, "env.txt", config.Env)
-	if err != nil {
-		panic(err)
-	}
-	err = tmpltEnv.ExecuteTemplate(envGeneralFile, "env.txt", config.Env)
-	if err != nil {
-		panic(err)
-	}
-
-	// ROUTES
-	fmt.Println("routes generating...")
-	tmpltRoutes, err := template.New("routes.txt").Funcs(funcMap).ParseFiles("tpl/routes.txt")
-
-	if err != nil {
-		panic(err)
-	}
-
-	routesFile, err := os.Create(backFolderName + "/routes.txt")
-	if err != nil {
-		panic(err)
-	}
-	err = tmpltRoutes.ExecuteTemplate(routesFile, "routes.txt", config)
-	if err != nil {
-		panic(err)
-	}
-
-	// Dockerfile
-	fmt.Println("Back Dockerfile generating...")
-	backDockerTmplt, err := template.New("dockerfileServer.txt").Funcs(funcMap).ParseFiles("tpl/dockerfileServer.txt")
-	if err != nil {
-		panic(err)
-	}
-	backDocker, err := os.Create(backFolderName + "/Dockerfile")
-	if err != nil {
-		panic(err)
-	}
-	err = backDockerTmplt.ExecuteTemplate(backDocker, "dockerfileServer.txt", nil)
-	if err != nil {
-		panic(err)
-	}
-
-	// todo FRONT
-	fmt.Println(" ")
-	fmt.Println("FRONT ...")
-	fmt.Println(" ")
-
-	frontFolderName := "./app/front"
-	err = os.Mkdir(frontFolderName, 0750)
-	if err != nil {
-		panic(err)
-	}
-
-	err = os.Mkdir(frontFolderName+"/public", 0750)
-	if err != nil {
-		panic(err)
-	}
-
-	// INDEX
-	indexFront, err := template.New("index.txt").Funcs(funcMap).ParseFiles("tpl/front/index.txt")
-	if err != nil {
-		panic(err)
-	}
-	indexFrontFile, err := os.Create(frontFolderName + "/public/index.html")
-	if err != nil {
-		panic(err)
-	}
-	err = indexFront.ExecuteTemplate(indexFrontFile, "index.txt", config.Env.Project)
-	if err != nil {
-		panic(err)
-	}
-
-	// package
-	packageFrontTmplt, err := template.New("package.txt").Funcs(funcMap).ParseFiles("tpl/front/package.txt")
-	if err != nil {
-		panic(err)
-	}
-	packageFrontFile, err := os.Create(frontFolderName + "/package.json")
-	if err != nil {
-		panic(err)
-	}
-	err = packageFrontTmplt.ExecuteTemplate(packageFrontFile, "package.txt", config.Env.Project)
-	if err != nil {
-		panic(err)
-	}
-
-	// index.js
-	err = os.Mkdir(frontFolderName+"/src", 0750)
-	if err != nil {
-		panic(err)
-	}
-
-	indexjsFrontTmplt, err := template.New("indexjs.txt").Funcs(funcMap).ParseFiles("tpl/front/indexjs.txt")
-	if err != nil {
-		panic(err)
-	}
-	indexjsFrontFile, err := os.Create(frontFolderName + "/src/index.js")
-	if err != nil {
-		panic(err)
-	}
-	err = indexjsFrontTmplt.ExecuteTemplate(indexjsFrontFile, "indexjs.txt", config)
-	if err != nil {
-		panic(err)
-	}
-
-	// app.js
-	appjsFrontTmplt, err := template.New("appjs.txt").Funcs(funcMap).ParseFiles("tpl/front/appjs.txt")
-	if err != nil {
-		panic(err)
-	}
-	appjsFrontFile, err := os.Create(frontFolderName + "/src/App.js")
-	if err != nil {
-		panic(err)
-	}
-	err = appjsFrontTmplt.ExecuteTemplate(appjsFrontFile, "appjs.txt", config)
-	if err != nil {
-		panic(err)
-	}
-
-	componentFrontTmplt, err := template.New("frc.txt").Funcs(funcMap).ParseFiles("tpl/front/frc.txt")
-	if err != nil {
-		panic(err)
-	}
-
-	componentFrontEditTmplt, err := template.New("fr-edit.txt").Funcs(funcMap).ParseFiles("tpl/front/fr-edit.txt")
-	if err != nil {
-		panic(err)
-	}
-
-	for _, v := range config.ModelsGo {
-		err = os.Mkdir(frontFolderName+"/src/"+v.Name, 0750)
-		if err != nil {
-			panic(err)
-		}
-
-		frcFile, err := os.Create(frontFolderName + "/src/" + v.Name + "/create.js")
-		if err != nil {
-			panic(err)
-		}
-		err = componentFrontTmplt.ExecuteTemplate(frcFile, "frc.txt", v)
-		if err != nil {
-			panic(err)
-		}
-
-		freditFile, err := os.Create(frontFolderName + "/src/" + v.Name + "/edit.js")
-		if err != nil {
-			panic(err)
-		}
-		err = componentFrontEditTmplt.ExecuteTemplate(freditFile, "fr-edit.txt", v)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	// Dockerfile
-	fmt.Println("Dockerfile generating...")
-	frontDockerTmplt, err := template.New("dockerfile.txt").Funcs(funcMap).ParseFiles("tpl/front/dockerfile.txt")
-	if err != nil {
-		panic(err)
-	}
-
-	frontDocker, err := os.Create(frontFolderName + "/Dockerfile")
-	if err != nil {
-		panic(err)
-	}
-
-	err = frontDockerTmplt.ExecuteTemplate(frontDocker, "dockerfile.txt", nil)
-	if err != nil {
-		panic(err)
+		generateFromTemplate(componentDir+"/create.js", componentTpl, "frc.txt", model, funcMap)
+		generateFromTemplate(componentDir+"/edit.js", componentEditTpl, "fr-edit.txt", model, funcMap)
 	}
 }

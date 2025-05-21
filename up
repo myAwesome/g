@@ -1,22 +1,43 @@
 #!/bin/bash
+set -e
+
+PROJECT_NAME=$(grep '^[[:space:]]*project:' single.yml | sed 's/.*project:[[:space:]]*//')
+
+# Якщо змінна порожня, встановлюємо дефолтне значення
+if [ -z "$PROJECT_NAME" ]; then
+  PROJECT_NAME="project_default"
+  echo "PROJECT_NAME not found in single.yaml, using default: $PROJECT_NAME"
+else
+  echo "Using PROJECT_NAME from single.yaml: $PROJECT_NAME"
+fi
+
+
 go run main.go &&
 chmod 0777 ./app &&
-cd ./app &&
+cd ./app/$PROJECT_NAME &&
+
+
 docker-compose up -d --build &&
 docker-compose ps &&
+echo "sleep 10sek"
+#sleep 10
 pwd &&
-cp ../node_modules_23.tar ../app/front/node_modules.tar &&
- cd front &&
- tar -xvf node_modules.tar &&
-cd ../ &&
+cp ../../node_modules_23.tar ./front/node_modules.tar &&
+cd front &&
+tar -xvf node_modules.tar &&
+cd ../
 
 # Перевірка статусу контейнера MySQL
-until docker exec app-mysql-1 mysqladmin ping -uroot -proot --silent; do
-    echo "Waiting for MySQL service to respond..."
-    sleep 5
+until docker exec ${PROJECT_NAME}-mysql-1 mysql -uroot -proot -e "USE ${DB_NAME}" 2>/dev/null; do
+  echo "Waiting for MySQL database '${DB_NAME}' to be ready..."
+  sleep 5
 done
 
-docker exec -i app-mysql-1 mysql -uroot -proot < sql.sql &&
+echo "sleep 3sek"
+sleep 3
+docker exec -i ${PROJECT_NAME}-mysql-1 mysql -uroot -proot < sql.sql &&
 cd back &&
-go get -d -v ./... && go install -v ./... && go build -o server .
-echo "&& (./server &) && cd ../front && (npm start &)"
+go get -d -v ./... && go install -v ./... && go build -o server . &&
+./server
+
+echo "end"

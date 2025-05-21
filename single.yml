@@ -1,24 +1,9 @@
 models:
-  student:
-    id:         int
+  item:
+    start:      date
+    title:      string
+    done:       boolean
+  tag:
     name:       string
-  discipline:
-    id:         int
-    name:       string
-  lesson:
-    id:         int
-    name:       string
-    date:       date
-    discipline: rel
-  student_has_lessons:
-    id:         int
-    student:    rel
-    lesson:     rel
 env:
-  project: classroom
-  db_port: 3304
-  db_user: vova
-  db_pass: vova
-  db_name: classroom_hash2
-  server_port: 8881
-
+  project: aljfhcv

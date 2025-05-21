@@ -29,12 +29,6 @@ func ({{.Name|snakeToCamel}}) TableName() string {
 	return "{{.Name}}"
 }
 {{end}}
-// Value objects
-{{range .VoGo}}
-type {{.Name|snakeToCamel}} struct {
-{{range .Fields}} {{ .Name|snakeToCamel }} {{ .GoType }}
-{{end}}}
-{{end}}
 
 func main() {
 	err := godotenv.Load()

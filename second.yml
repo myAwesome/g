@@ -1,0 +1,20 @@
+models:
+  author:
+    name:       string
+    email:      string
+    nickname:   string
+    rank:       float
+    level:      int
+    dob:        date
+    guild:      boolean
+    activated:  datetime
+    city:       enum("Kiev","Rio","Bali")
+
+_meta:
+  sql:
+    pk:  name
+    uniq: "name, email, nickname"
+  server:
+    hidden: pass
+  client:
+    rel_name: nickname
